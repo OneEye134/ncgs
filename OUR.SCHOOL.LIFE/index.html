@@ -73,6 +73,8 @@
       <button onclick="checkschaps()">​​​​</button>
     </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
     <script>
       
       function checkschaps() {
@@ -91,7 +93,25 @@
         }
       }
       
-        function loadChapter() {
+      function fixSpacing(text) {
+    // Add space after .,?! if next char is a letter or quote and not already space
+    return text.replace(/([.,?!])(["']?)(\w)/g, '$1$2 $3');
+}
+
+function renderChapterMarkdown(mdText) {
+    // Fix spacing issues
+    mdText = fixSpacing(mdText);
+
+    // Convert our [id]# Header syntax to proper {#id} for marked.js
+    mdText = mdText.replace(/^\[(.+?)\](#+)\s*(.+)$/gm, (match, id, hashes, title) => {
+        return `${hashes} ${title} {#${id}}`;
+    });
+
+    // Convert Markdown to HTML
+    return marked(mdText, { headerIds: true });
+}
+
+function loadChapter() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
     const select = document.getElementById('chapter-select');
     const chapterNumber = parseInt(select.value);
@@ -100,14 +120,15 @@
     const nextButton = document.getElementById('next-chap');
 
     if (!chapterNumber) {
-        contentDiv.innerHTML = `<h3>WARNING!: Please read the WHOLE warning before continuing.</h3>
-    <p>This novel is NOT about romance, it's about school friends going through random challenges of school.</p>
-    <p>Just like I said, they are school friends! I don't care about what you think they are, but they are simply just friends.</p>
-    <p>To all the classmates who have their names in the story, I only used your names because I don't know a lot of names, so I'm not making any of you look bad. I am only using your name for a different character.</p>
-    <p>So if you think you were placed in the story, you are actually not in the story. It might be your name, but it is a whole different character.</p>     
-    <h3 class="red">ULYSSES AND LEIGHTON ARE NOT IN A RELATIONSHIP!!!</h3>
-    <h3 class="red">YOU MIGHT BE WONDERING WHY ULYSSES AND LEIGHTON APPEAR A LOT IN THE STORY, IT'S BECAUSE THE BOTH OF THEM ARE SIMPLY THE MAIN CHARACTERS, AND THEY MIGHT HAVE THE SAME NAME AS YOU, BUT I ASSURE YOU THAT THEY ARE WHOLE DIFFERENT CHARACTERS.</h3>
-    <h4>Happy Reading! - NCGS Studios</h4>`;
+        contentDiv.innerHTML = `
+            <h3>WARNING!: Please read the WHOLE warning before continuing.</h3>
+            <p>This novel is NOT about romance, it's about school friends going through random challenges of school.</p>
+            <p>Just like I said, they are school friends! I don't care about what you think they are, but they are simply just friends.</p>
+            <p>To all the classmates who have their names in the story, I only used your names because I don't know a lot of names, so I'm not making any of you look bad. I am only using your name for a different character.</p>
+            <p>So if you think you were placed in the story, you are actually not in the story. It might be your name, but it is a whole different character.</p>     
+            <h3 class="red">ULYSSES AND LEIGHTON ARE NOT IN A RELATIONSHIP!!!</h3>
+            <h3 class="red">YOU MIGHT BE WONDERING WHY ULYSSES AND LEIGHTON APPEAR A LOT IN THE STORY, IT'S BECAUSE THE BOTH OF THEM ARE SIMPLY THE MAIN CHARACTERS, AND THEY MIGHT HAVE THE SAME NAME AS YOU, BUT I ASSURE YOU THAT THEY ARE WHOLE DIFFERENT CHARACTERS.</h3>
+            <h4>Happy Reading! - NCGS Studios</h4>`;
         prevButton.disabled = true;
         nextButton.disabled = true;
         return;
@@ -116,17 +137,15 @@
     // Show loading message
     contentDiv.innerHTML = '<h1>Loading...</h1>';
 
-    const chapterFile = `OUR.SCHOOL.LIFE/${chapterNumber}chap.html`;
+    const chapterFile = `OUR.SCHOOL.LIFE/${chapterNumber}chap.md`;
 
     fetch(chapterFile)
         .then(response => {
-            if (!response.ok) {
-                throw new Error('Chapter not found');
-            }
+            if (!response.ok) throw new Error('Chapter not found');
             return response.text();
         })
-        .then(data => {
-            contentDiv.innerHTML = data;
+        .then(mdText => {
+            contentDiv.innerHTML = renderChapterMarkdown(mdText);
         })
         .catch(err => {
             contentDiv.innerHTML = `<p>Error: ${err.message}</p>`;
