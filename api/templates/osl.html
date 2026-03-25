@@ -101,8 +101,7 @@
 function renderChapterMarkdown(mdText) {
     // Fix spacing issues
     mdText = fixSpacing(mdText);
-
-    // Convert our [id]# Header syntax to proper {#id} for marked.js
+    
     mdText = mdText.replace(/^\[(.+?)\](#+)\s*(.+)$/gm, (match, id, hashes, title) => {
         return `${hashes} ${title} {#${id}}`;
     });
