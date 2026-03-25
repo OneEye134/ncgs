@@ -149,8 +149,9 @@ function loadChapter() {
 
             elements.forEach(el => {
                 const text = el.textContent.trim();
-
+                {% raw %}
                 // Check if it ends with {#something}
+                {% endraw %}
                 const match = text.match(/\{#(.+?)\}$/);
                 if (match) {
                     const id = match[1];
