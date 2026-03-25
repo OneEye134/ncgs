@@ -9,3 +9,7 @@ def home():
 @app.route('/OUR.SCHOOL.LIFE')
 def osl():
     return render_template('osl.html')
+
+@app.route('/auth')
+def userauth():
+    return render_template('userauth.html')
