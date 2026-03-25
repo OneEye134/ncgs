@@ -104,15 +104,15 @@ function renderChapterMarkdown(mdText) {
 
     // Override heading rendering
     renderer.heading = (text, level, raw, slugger) => {
-        // Check if text starts with [id]
         const match = text.match(/^\[(.+?)\](.*)$/);
         let id, content;
         if (match) {
-            id = match[1].trim(); // The ID inside brackets
-            content = match[2].trim(); // The rest of the text
+            id = match[1].trim(); // the ID inside brackets
+            // remove leading # symbols and spaces from content
+            content = match[2].replace(/^#+\s*/, '').trim();
         } else {
-            id = slugger.slug(text); // fallback slug
-            content = text;
+            id = slugger.slug(text);
+            content = text.replace(/^#+\s*/, '').trim();
         }
         return `<h${level} id="${id}">${content}</h${level}>\n`;
     };
