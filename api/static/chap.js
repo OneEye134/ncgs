@@ -55,7 +55,7 @@ if (!chapterNumber) {
 // Show loading message
 contentDiv.innerHTML = '<h1>Loading...</h1>';
 
-const chapterFile = `OUR.SCHOOL.LIFE/${chapterNumber}chap.md`;
+const chapterFile = `/static/OUR.SCHOOL.LIFE/${chapterNumber}chap.md`;
 
 fetch(chapterFile)
     .then(response => {
