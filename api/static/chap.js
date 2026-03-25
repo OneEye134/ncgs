@@ -125,7 +125,7 @@ fetch(secretChapterFile)
     if (!document.getElementById('chap-style')) {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = 'chap-style.css';
+    link.href = '/static/chap-style.css';
     link.id = 'chap-style';
     document.head.appendChild(link);
 }
