@@ -101,11 +101,11 @@
 function renderChapterMarkdown(mdText) {
     // Fix spacing issues
     mdText = fixSpacing(mdText);
-    
+    {% raw %}
     mdText = mdText.replace(/^\[(.+?)\](#+)\s*(.+)$/gm, (match, id, hashes, title) => {
         return `${hashes} ${title} {#${id}}`;
     });
-
+    {% endraw %}
     // Convert Markdown to HTML
     return marked.parse(mdText, { headerIds: true });
 }
