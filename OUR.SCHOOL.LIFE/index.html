@@ -146,6 +146,23 @@ function loadChapter() {
         })
         .then(mdText => {
             contentDiv.innerHTML = renderChapterMarkdown(mdText);
+            const elements = contentDiv.querySelectorAll("*");
+
+            elements.forEach(el => {
+                const text = el.textContent.trim();
+
+                // Check if it ends with {#something}
+                const match = text.match(/\{#(.+?)\}$/);
+                if (match) {
+                    const id = match[1];
+
+                    // Set it as actual element ID
+                    el.id = id;
+
+                    // Remove the {#...} from visible text
+                    el.textContent = text.replace(/\s*\{#.+?\}$/, "");
+                }
+            });
         })
         .catch(err => {
             contentDiv.innerHTML = `<p>Error: ${err.message}</p>`;
