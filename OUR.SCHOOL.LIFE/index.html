@@ -99,25 +99,27 @@
 }
 
 function renderChapterMarkdown(mdText) {
-    // Create a custom marked renderer
     const renderer = new marked.Renderer();
 
     // Override heading rendering
     renderer.heading = (text, level, raw, slugger) => {
-        const match = text.match(/^\[(.+?)\](.*)$/);
-        let id, content;
+        let id = '';
+        let content = text;
+
+        // Match [id] optionally followed by #s and the header text
+        const match = text.match(/^\s*\[(.+?)\]\s*#*\s*(.*)$/);
         if (match) {
-            id = match[1].trim(); // the ID inside brackets
-            // remove leading # symbols and spaces from content
-            content = match[2].replace(/^#+\s*/, '').trim();
+            id = match[1].trim();         // The ID inside brackets
+            content = match[2].trim();    // The visible header text
         } else {
-            id = slugger.slug(text);
-            content = text.replace(/^#+\s*/, '').trim();
+            id = slugger.slug(text);       // fallback slug
+            content = text.trim();
         }
+
         return `<h${level} id="${id}">${content}</h${level}>\n`;
     };
 
-    // Render Markdown using our custom renderer
+    // Parse the Markdown using our custom renderer
     return marked.parse(mdText, { renderer });
 }
 
