@@ -76,6 +76,7 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <script>
+      {% raw %}
       
       function checkschaps() {
         const schapsv = document.getElementById("schaps").value;
@@ -101,11 +102,9 @@
 function renderChapterMarkdown(mdText) {
     // Fix spacing issues
     mdText = fixSpacing(mdText);
-    {% raw %}
     mdText = mdText.replace(/^\[(.+?)\](#+)\s*(.+)$/gm, (match, id, hashes, title) => {
         return `${hashes} ${title} {#${id}}`;
     });
-    {% endraw %}
     // Convert Markdown to HTML
     return marked.parse(mdText, { headerIds: true });
 }
@@ -149,9 +148,7 @@ function loadChapter() {
 
             elements.forEach(el => {
                 const text = el.textContent.trim();
-                {% raw %}
                 // Check if it ends with {#something}
-                {% endraw %}
                 const match = text.match(/\{#(.+?)\}$/);
                 if (match) {
                     const id = match[1];
@@ -223,6 +220,7 @@ function LoadSecretChapter(n) {
                 loadChapter();
             }
         }
+        {% endraw %}
     </script>
 </body>
 </html>
