@@ -108,7 +108,7 @@ function renderChapterMarkdown(mdText) {
     });
 
     // Convert Markdown to HTML
-    return marked(mdText, { headerIds: true });
+    return marked.parse(mdText, { headerIds: true });
 }
 
 function loadChapter() {
