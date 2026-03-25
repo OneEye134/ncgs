@@ -3,12 +3,18 @@
 
 [chapter-14-market-mayhem]## How Not to Shop with "Friends"
 
-Leighton had one rule when it came to outings:avoid public places at all costs.
+Leighton had one rule when it came to outings:
+**avoid public places at all costs**
+.
 
 Unfortunately, that rule was impossible to follow when she was dragged into the middle of a crowded market by Ulysses, Daniel
-  , and Fritz, who had somehow convinced her that this wasnecessaryfor their project.
+  , and Fritz, who had somehow convinced her that this was
+*necessary*
+for their project.
 
-> “We need materials,” Ulysses had said, smirking.“And besides, wouldn’t it be fun to go shopping together?”
+> “We need materials,” Ulysses had said, smirking.
+> <br/>
+> “And besides, wouldn’t it be fun to go shopping together?”
 
 Leighton had immediately refused, but before she could escape, Daniel had grabbed her by the wrist, Fritz had blocked the door, and Ulysses had given her his most infuriating grin.
 
@@ -24,9 +30,13 @@ Ulysses chuckled, nudging her lightly.
 
 > “Alright, alright. Let’s make this quick before Leighton actually murders us.”
 
-Leighton sighed in relief, but that relief wasshort-lived.
+Leighton sighed in relief, but that relief was
+**short-lived**
+.
 
-Because the second they entered the first stall, everything went downhill.
+Because the second they entered the first stall,
+**everything went downhill**
+.
 
 ---
 
@@ -34,9 +44,13 @@ Fritz had somehow knocked over an entire stack of fruit baskets, sending oranges
 
 Daniel, meanwhile, was haggling aggressively, even though they didn’t actually need to buy anything from that particular vendor.
 
-And Ulysses? He was watching the chaos unfold with a smirk, occasionally throwing out unhelpful comments like:
+And Ulysses?
+<br/>
+He was watching the chaos unfold with a smirk, occasionally throwing out unhelpful comments like:
 
-> “Wow, this is going well.”“Hey Leighton, do you think they’ll ban us from the market?”
+> “Wow, this is going well.”
+> <br/>
+> “Hey Leighton, do you think they’ll ban us from the market?”
 
 Leighton rubbed her temples, feeling a headache brewing.
 
@@ -54,7 +68,11 @@ She had no answer. Instead, she grabbed Ulysses by the sleeve and dragged him aw
 
 ---
 
-The next stall wasless chaotic, but that was only because Leighton tookfull control, grabbing the items they needed and shoving them into Ulysses’ arms.
+The next stall was
+*less chaotic*
+, but that was only because Leighton took
+**full control**
+, grabbing the items they needed and shoving them into Ulysses’ arms.
 
 > “Carry this,” she ordered.
 > “Wow, bossy,” he mused. “Are you always this scary when you shop?”
@@ -62,17 +80,25 @@ The next stall wasless chaotic, but that was only because Leighton tookfull cont
 
 They continued through the market, but the peace didn’t last long.
 
-At one point, Daniel challenged a random kid to aspicy food eating contest.
+At one point, Daniel challenged a random kid to a
+**spicy food eating contest**
+.
 
-Fritz got distracted by a street magician andalmost got pickpocketed.
+Fritz got distracted by a street magician and
+**almost got pickpocketed**
+.
 
-And Ulysses? He kept making Leighton carry things, just to see how long it would take before she snapped.
+And Ulysses?
+<br/>
+He kept making Leighton carry things, just to see how long it would take before she snapped.
 
-(Spoiler: Not long. She threw a bag of vegetables at his face.)
+*(Spoiler: Not long. She threw a bag of vegetables at his face.)*
 
 ---
 
-By the time they finally reached the last stall, Leighton wasexhausted.
+By the time they finally reached the last stall, Leighton was
+*exhausted*
+.
 
 > “There,” she muttered, checking the list. “We’re done.”
 > “Aww, already?” Daniel sighed. “I was having fun.”
@@ -95,11 +121,17 @@ She narrowed her eyes.
 
 ---
 
-Before she could process that, avery angry vendorstormed toward them, yelling something aboutnot touching things they weren’t planning to buy.
+Before she could process that, a
+**very angry vendor**
+stormed toward them, yelling something about
+*not touching things they weren’t planning to buy*
+.
 
 Leighton froze.
 
 > “Ulysses,” she hissed, already backing away. “What did you do?”
-> “No time for questions—RUN!”
+> “No time for questions—
+> **RUN!**
+> ”
 
 And just like that, the four of them bolted, weaving through the crowded market as the vendor chased after them, yelling threats that Leighton really didn’t want to translate.

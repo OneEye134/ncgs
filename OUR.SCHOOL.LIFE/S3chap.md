@@ -2,21 +2,27 @@
 
 Leighton should have known.
 
-She should have known that following Ulysses anywhere was amistake.
+She should have known that following Ulysses anywhere was a
+**mistake**
+.
 
 And yet, here she was.
 
-Strapped into what could only be described as adeath machine in disguise.
+Strapped into what could only be described as a
+**death machine in disguise**
+.
 
 The ride loomed above them like a metallic beast, its massive LED sign flickering with an ominous message:
 
-> “THE SCREAM REAPER – 5-TIME WINNER OF ‘WORLD’S SCARIEST RIDE’”
+> **“THE SCREAM REAPER – 5-TIME WINNER OF ‘WORLD’S SCARIEST RIDE’”**
 
 ---
 
 [the-warning-signs]## The Warning Signs
 
-At first, Leighton thought it was just anormal roller coaster. Terrifying, sure. But nothing she couldn’t handle.
+At first, Leighton thought it was just a
+**normal roller coaster**
+. Terrifying, sure. But nothing she couldn’t handle.
 
 Then, she noticed something.
 
@@ -44,13 +50,17 @@ She turned to their friends for support.
 - Fritz? Recording.
 - ValandLeonard? Hyping it up.
 - YesheandDaniel? Already in line.
-Leighton? Betrayed.
+**Leighton**
+?
+**Betrayed.**
 
 ---
 
 [the-ride-begins]## The Ride Begins
 
-And that was how Leighton found herselftrappedin the front row, her hands gripping the harness so tightly her knuckles turned white.
+And that was how Leighton found herself
+**trapped**
+in the front row, her hands gripping the harness so tightly her knuckles turned white.
 
 Ulysses, sitting beside her, smirked.
 
@@ -59,48 +69,72 @@ Ulysses, sitting beside her, smirked.
 
 Too late.
 
-> “WELCOME TO THE SCREAM REAPER.”
-> “SURVIVAL RATE: CLASSIFIED.”“PREPARE FOR… THE UNKNOWN.”
+> **“WELCOME TO THE SCREAM REAPER.”**
+> **“SURVIVAL RATE: CLASSIFIED.”**
+> <br/>
+> **“PREPARE FOR… THE UNKNOWN.”**
 
 A deep rumbling sound echoed around them.
 
-The ridejolted.
+The ride
+**jolted**
+.
 
 And then—
 
-The floor beneath themdisappeared.
+The floor beneath them
+**disappeared**
+.
 
-> WHOOSH—
+> **WHOOSH—**
 
 They plummeted into pure darkness.
 
 Leighton’s scream never even made it out.
 
-For a full five seconds, they free-fell in totalsilence. No wind. No sound. Just the feeling ofabsolute nothingness.
+For a full five seconds, they free-fell in total
+**silence**
+. No wind. No sound. Just the feeling of
+**absolute nothingness**
+.
 
 And then—
 
-> "HELLO."
+> **"HELLO."**
 
-A face—AFACE—suddenly jumped out of the darkness, inches from her own.
+A face—A
+**FACE**
+—suddenly jumped out of the darkness, inches from her own.
 
-Leighton nearlydiedon the spot.
+Leighton nearly
+**died**
+on the spot.
 
-The ride jerked violently, shooting them into a narrow tunnel filled withflashing lightsand horrifyingwhispers.
+The ride jerked violently, shooting them into a narrow tunnel filled with
+**flashing lights**
+and horrifying
+**whispers**
+.
 
 Ulysses let out a choked sound.
 
 > “Wha—WHAT IS THIS?!”
 
-Leighton was too busy tryingnot to have a heart attack.
+Leighton was too busy trying
+**not to have a heart attack**
+.
 
-The coaster rocketed throughpitch-black corridors, glowing red eyes staring at them from the shadows. Figures moved in the darkness—unreal shapes twisting and reaching—
+The coaster rocketed through
+**pitch-black corridors**
+, glowing red eyes staring at them from the shadows. Figures moved in the darkness—unreal shapes twisting and reaching—
 
-> "DO NOT LOOK BEHIND YOU."
+> **"DO NOT LOOK BEHIND YOU."**
 
 Leighton immediately looked behind her.
 
-A shadowyhandlunged toward her face.
+A shadowy
+**hand**
+lunged toward her face.
 
 > “AAAAAAAAAAAAAAAHHHHHHHHHHHHHH—”
 
@@ -108,33 +142,51 @@ A shadowyhandlunged toward her face.
 
 [the-nightmare]## The Nightmare
 
-The ridedropped.
+The ride
+**dropped**
+.
 
 Ulysses screamed.
 
-Leighton screamedlouder.
+Leighton screamed
+**louder**
+.
 
-The ground seemed to disappear, leaving them in freefall for what felt like aneternity.
+The ground seemed to disappear, leaving them in freefall for what felt like an
+**eternity**
+.
 
 Then, without warning—
 
-> "DON’T BLINK."
+> **"DON’T BLINK."**
 
-A wall offacesappeared in the dark, all staring at them withwide, empty eyes.
+A wall of
+**faces**
+appeared in the dark, all staring at them with
+**wide, empty eyes**
+.
 
 Ulysses grabbed the harness.
 
 > “WHAT KIND OF RIDE IS THIS?!”
 
-Leighton couldn’t evenbreathe.
+Leighton couldn’t even
+**breathe**
+.
 
-Suddenly, the ridestopped.
+Suddenly, the ride
+**stopped**
+.
 
-Totalsilence.
+Total
+**silence**
+.
 
 No wind. No sounds. No movement.
 
-Just…nothing.
+Just…
+**nothing**
+.
 
 Ulysses swallowed.
 
@@ -144,33 +196,49 @@ Leighton didn’t move. She was too scared to even blink.
 
 Then—
 
-> "NO."
-> BAM—
+> **"NO."**
+> **BAM—**
 
-A bloodcurdlingscreamechoed through the ride as they were launchedbackwardat full speed.
+A bloodcurdling
+**scream**
+echoed through the ride as they were launched
+**backward**
+at full speed.
 
-Leighton completelylost her mind.
+Leighton completely
+**lost her mind**
+.
 
-The jumpscares wereendless. Every turn—every loop—every drop—somethinglurchedat them from the darkness.
+The jumpscares were
+**endless**
+. Every turn—every loop—every drop—something
+**lurched**
+at them from the darkness.
 
 - A grotesque figurehanging upside downfrom the tracks.
 - A distortedlaughechoing from nowhere.
 - A pair ofhandsreaching out of the shadows.
-> "THE RIDE NEVER ENDS."
+> **"THE RIDE NEVER ENDS."**
 
 Leighton gasped for air.
 
-Ulysses, for the first time in his life, lookedgenuinely terrified.
+Ulysses, for the first time in his life, looked
+**genuinely terrified**
+.
 
 Then—
 
-SILENCE.
+**SILENCE.**
 
 The ride pulled back into the station.
 
-The harnessreleased.
+The harness
+**released**
+.
 
-Leighton sat there, completelyfrozen.
+Leighton sat there, completely
+**frozen**
+.
 
 Ulysses?
 
@@ -180,11 +248,17 @@ The ride operators casually strolled up.
 
 > “Welcome back.”
 
-Leighton’s hands were still clenched so tightly around the safety bar that her fingers hadlocked.
+Leighton’s hands were still clenched so tightly around the safety bar that her fingers had
+**locked**
+.
 
-Ulysses blinked slowly, his entire faceblank.
+Ulysses blinked slowly, his entire face
+**blank**
+.
 
-Fritz and the others, waiting outside, werehowlingwith laughter.
+Fritz and the others, waiting outside, were
+**howling**
+with laughter.
 
 Leighton turned to Ulysses, her voice deadpan.
 
@@ -192,7 +266,9 @@ Leighton turned to Ulysses, her voice deadpan.
 
 Ulysses just stared forward.
 
-> “... That wasnot normal.”
+> “... That was
+> **not normal**
+> .”
 
 ---
 

@@ -36,7 +36,19 @@ Then he stopped.
 
 His eyes widened.
 
-> "How to propose to an annoying idiot.""Best way to propose to someone who doesn’t take anything seriously.""What happens if you propose and they just laugh at you.""Can you take back a proposal if it goes horribly wrong.""Ways to make sure someone doesn’t think you’re joking when you propose.""How to give a ring without looking like a total fool.""Signs that someone won’t reject your proposal immediately."
+> "How to propose to an annoying idiot."
+> <br/>
+> "Best way to propose to someone who doesn’t take anything seriously."
+> <br/>
+> "What happens if you propose and they just laugh at you."
+> <br/>
+> "Can you take back a proposal if it goes horribly wrong."
+> <br/>
+> "Ways to make sure someone doesn’t think you’re joking when you propose."
+> <br/>
+> "How to give a ring without looking like a total fool."
+> <br/>
+> "Signs that someone won’t reject your proposal immediately."
 
 Ulysses blinked. Once. Twice.
 

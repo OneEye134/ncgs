@@ -1,8 +1,14 @@
 [secret-chapter-the-night-of-absolute-terror]# Secret Chapter: The Night of Absolute Terror
 
-The field trip was supposed to be fun. Educational, even. A two-day adventure in the mountains, complete with hikes, museum visits, and a cozy stay in wooden cabins.
+The field trip was supposed to be fun. Educational, even.
+<br/>
+A two-day adventure in the mountains, complete with hikes, museum visits, and a cozy stay in wooden cabins.
 
-But forUlyssesand the boys, the real highlight of the trip wasOperation: Absolute Terror.
+But for
+**Ulysses**
+and the boys, the real highlight of the trip was
+**Operation: Absolute Terror**
+.
 
 ---
 
@@ -14,22 +20,26 @@ Make the girls so scared that they wouldn’t even want to sleep.
 
 [phase-1-the-horror-begins]## Phase 1: The Horror Begins
 
-It started with something simple. Unexplained knocking.
+It started with something simple.
+**Unexplained knocking**
+.
 
-At exactly12:00 AM, the boys spread out around the girls’ cabin.
+At exactly
+**12:00 AM**
+, the boys spread out around the girls’ cabin.
 
 - ChristianandLeonardtook the left side.
 - DanielandYeshetook the right.
 - UlyssesandFritzstationed themselves at the front door.
 They started slow.
 
-> Knock… knock… knock…
+> **Knock… knock… knock…**
 
 From inside, nothing.
 
 Then—
 
-> Knock. Knock. Knock.
+> **Knock. Knock. Knock.**
 
 Louder this time.
 
@@ -37,7 +47,7 @@ Still, no reaction.
 
 So Ulysses slammed his fist against the door.
 
-> BANG. BANG. BANG.
+> **BANG. BANG. BANG.**
 
 Inside, they heard it. A shuffle. Then a faint, whispered voice.
 
@@ -45,13 +55,17 @@ Inside, they heard it. A shuffle. Then a faint, whispered voice.
 
 More whispers. Then—
 
-> SLAM.
+> **SLAM.**
 
-The front door burst open, andLeightonstood there with a tired expression.
+The front door burst open, and
+**Leighton**
+stood there with a tired expression.
 
 > “…Go back to bed.”
 
-The boysimmediately scatteredinto the darkness, holding in their laughter.
+The boys
+**immediately scattered**
+into the darkness, holding in their laughter.
 
 > “She wasn’t even scared,” Yeshe whispered.
 
@@ -63,13 +77,23 @@ Ulysses smirked.
 
 [phase-2-the-shadow-in-the-window]## Phase 2: The Shadow in the Window
 
-The next part of the plan was purenightmare fuel.
+The next part of the plan was pure
+**nightmare fuel**
+.
 
-Val had brought along, black cloakfor this part. Daniel put it on and positioned himself outside one of the windows, standing completelystill.
+Val had brought a
+**long, black cloak**
+for this part. Daniel put it on and positioned himself outside one of the windows, standing completely
+**still**
+.
 
-He made sure to stand in the moonlight, just enough for his face to bebarely visible.
+He made sure to stand in the moonlight, just enough for his face to be
+**barely visible**
+.
 
-And then he just... stood there.
+And then he just...
+**stood there**
+.
 
 It took a while, but eventually, someone inside noticed.
 
@@ -79,28 +103,48 @@ Silence.
 
 > “Guys. Look at the window.”
 
-The fear spreadinstantly.
+The fear spread
+**instantly**
+.
 
-> “THERE’S SOMEONE THERE.”
+> “
+> **THERE’S SOMEONE THERE.**
+> ”
 
 Panicked scrambling.
 
 > “Is it a teacher?!”
 > “No—NO, IT’S NOT MOVING.”
 
-Then one of the girls made amistake.
+Then one of the girls made a
+**mistake**
+.
 
 She grabbed a flashlight and shined it at the window.
 
-And for thebriefest second, Daniel’s face was completely visible—but his eyes lookedempty. His skin waspale, his faceunnaturally still.
+And for the
+**briefest second**
+, Daniel’s face was completely visible—but his eyes looked
+**empty**
+. His skin was
+**pale**
+, his face
+**unnaturally still**
+.
 
-It lookedinhuman.
+It looked
+**inhuman**
+.
 
-> Screaming.
+> **Screaming.**
 
-Leighton grabbed a pillow andthrew it at the window.
+Leighton grabbed a pillow and
+**threw it at the window**
+.
 
-The curtains snapped shutimmediately.
+The curtains snapped shut
+**immediately**
+.
 
 The boys, hiding in the bushes, almost died trying not to laugh.
 
@@ -108,15 +152,21 @@ The boys, hiding in the bushes, almost died trying not to laugh.
 
 Ulysses grinned.
 
-> “Final phase.”
+> “
+> **Final phase.**
+> ”
 
 ---
 
 [phase-3-the-ultimate-jumpscare]## Phase 3: The Ultimate Jumpscare
 
-The last part of the plan was so horrific thatnone of the girls would sleep again.
+The last part of the plan was so horrific that
+**none of the girls would sleep again**
+.
 
-Ulysses and Fritzsnuck insidethe girls’ cabin while everyone was asleep.
+Ulysses and Fritz
+**snuck inside**
+the girls’ cabin while everyone was asleep.
 
 - Fritz positioned himselfbehind the wardrobe.
 - Ulysses stood in thecorner, completely motionless.
@@ -124,33 +174,47 @@ The plan was simple.
 
 Wait for someone to wake up.
 
-Then—sudden movement.
+Then—
+**sudden movement**
+.
 
-And the moment camefasterthan expected.
+And the moment came
+**faster**
+than expected.
 
 One of the girls, groggy and half-asleep, sat up and rubbed her eyes.
 
 She turned her head—
 
-Andfroze.
+And
+**froze**
+.
 
-Because in the dim light, Ulysses was just…standing there.
+Because in the dim light, Ulysses was just…
+**standing there**
+.
 
-Staring.
+**Staring.**
 
 > “…H-Hello?” she whispered, voice shaking.
 
 Ulysses didn’t move.
 
-The girl’s breathing picked up. Her handstrembled.
+The girl’s breathing picked up. Her hands
+**trembled**
+.
 
 And then—
 
-> BAM.
+> **BAM.**
 
-FritzLUNGEDfrom behind the wardrobe.
+Fritz
+**LUNGED**
+from behind the wardrobe.
 
-The girl’s scream wasBLOOD-CURDLING.
+The girl’s scream was
+**BLOOD-CURDLING**
+.
 
 ---
 
@@ -159,29 +223,43 @@ The girl’s scream wasBLOOD-CURDLING.
 - Someonefell out of bed.
 - Someone elsetrippedover their blanket.
 - Leighton, pale as a ghost, bolted upright in pure terror.
-> "WHAT IS THAT?!"
-> "IT’S A GHOST—!!"
+> "
+> **WHAT IS THAT?!**
+> "
+> "
+> **IT’S A GHOST—!!**
+> "
 
-Panicexplodedthrough the room as pillows, water bottles, and random objects went flying.
+Panic
+**exploded**
+through the room as pillows, water bottles, and random objects went flying.
 
-The boysBURST out the door, laughing hysterically.
+The boys
+**BURST out the door**
+, laughing hysterically.
 
 > “That was PERFECT!” Fritz wheezed.
 > “I think Leighton actually almost had a heart attack,” Daniel grinned.
 
 Ulysses, catching his breath, smirked.
 
-> “Totally. Worth. It.”
+> “
+> **Totally. Worth. It.**
+> ”
 
 ---
 
 [the-aftermath]## The Aftermath
 
-The next morning, the girls lookedhaunted.
+The next morning, the girls looked
+**haunted**
+.
 
 - Dark circles under their eyes.
 - Jumping at every little sound.
-Leighton? She looked ready tokillsomeone.
+Leighton? She looked ready to
+**kill**
+someone.
 
 > “Hey, you guys look tired,” Ulysses teased.
 
@@ -189,4 +267,6 @@ Leighton grabbed his wrist.
 
 > “…Run,” Fritz whispered.
 
-And Ulyssesran for his life.
+And Ulysses
+**ran for his life**
+.

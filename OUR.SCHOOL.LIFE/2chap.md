@@ -8,7 +8,8 @@ She didn’t believe for a second that he actually needed her help.
 
 > “C’mon, Leighton, don’t look so miserable,” Ulysses said, grinning as he led the way through the narrow aisles. “It’s just shopping.”
 
-Leighton shot him a look that very clearly said," I hate you."
+Leighton shot him a look that very clearly said,
+*"I hate you."*
 
 He laughed.
 
@@ -18,7 +19,8 @@ She rolled her eyes and adjusted the strap of her bag, trying to focus on not bu
 
 > “How do you even tell if this is good?” he muttered.
 
-Leighton sighed, reaching over to press her fingers against the tomato’s skin. Slightly firm, no blemishes. She gave him a pointed look, as if to say," Like this."
+Leighton sighed, reaching over to press her fingers against the tomato’s skin. Slightly firm, no blemishes. She gave him a pointed look, as if to say,
+*"Like this."*
 
 > “Ohhh,” he said, nodding in mock understanding. “So, you’re a vegetable expert now?”
 
@@ -52,7 +54,9 @@ Leighton almost choked on air. That was brutal. Nathan’s smirk twitched, clear
 > “You always got something to say, don’t you?”
 > “Only when I see something stupid,” Ulysses replied smoothly. “Which, in your case, is all the time.”
 
-Greg and Oliver snickered. At their own friend.
+Greg and Oliver snickered.
+<br/>
+*At their own friend.*
 
 Nathan, looking irritated, clicked his tongue.
 
@@ -78,7 +82,9 @@ Leighton groaned.
 
 ---
 
-An hour later, they were still at the market. Ulysses had bought way too many unnecessary things, including snacks he definitely didn’t need, a wooden spoon for no reason, and a tiny potted plant that he claimed“looked lonely.”Leighton had long since given up trying to question his decisions.
+An hour later, they were still at the market. Ulysses had bought way too many unnecessary things, including snacks he definitely didn’t need, a wooden spoon for no reason, and a tiny potted plant that he claimed
+*“looked lonely.”*
+Leighton had long since given up trying to question his decisions.
 
 They stopped at a small street food stall near the exit, where an old man was grilling skewers of meat. The smell was incredible.
 
@@ -92,4 +98,6 @@ She narrowed her eyes, but after a moment, she gave a small nod. He handed her a
 
 Just two people, quietly eating food together. It was… nice.
 
-Leighton glanced at him from the corner of her eye. Maybe, just maybe, he wasn’t so bad.
+Leighton glanced at him from the corner of her eye.
+<br/>
+Maybe, just maybe, he wasn’t so bad.

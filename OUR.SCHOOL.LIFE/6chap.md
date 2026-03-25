@@ -2,7 +2,12 @@
 
 [neighborhood-chores-and-unexpected-company]## Neighborhood Chores and Unexpected Company
 
-Leightonrarely left her house unless necessary. It wasn’t that she disliked being outside—she just preferred peace and quiet. Unfortunately, peace wasn’t an option today. Her mother had asked her to run errands around the neighborhood, which meant interacting with people. Worst of all, she had to walk past Ulysses’ house. She prayed he wouldn’t be outside.
+<button onclick="alert('Unlock Chapter: The Ride from Hell; Code: The... RIDE!')" style="background: none; border: none; padding: 0; margin: 0; 
+               font-weight: 525; font-size: inherit; font-family: inherit; 
+               color: inherit; cursor: pointer;">
+        Leighton
+    </button>
+rarely left her house unless necessary. It wasn’t that she disliked being outside—she just preferred peace and quiet. Unfortunately, peace wasn’t an option today. Her mother had asked her to run errands around the neighborhood, which meant interacting with people. Worst of all, she had to walk past Ulysses’ house. She prayed he wouldn’t be outside.
 
 She lost that prayer immediately.
 
@@ -16,11 +21,21 @@ She ignored him and kept walking.
 
 He easily caught up, matching her pace.
 
-> “Where are you headed?”“Nowhere.”“Wow, what a coincidence. I’m going nowhere too.”
+> “Where are you headed?”
+> <br/>
+> “Nowhere.”
+> <br/>
+> “Wow, what a coincidence. I’m going nowhere too.”
 
 She sighed deeply.
 
-> “I have errands.”“Oh? Need help?”“No.”“Too bad. I’m coming anyway.”
+> “I have errands.”
+> <br/>
+> “Oh? Need help?”
+> <br/>
+> “No.”
+> <br/>
+> “Too bad. I’m coming anyway.”
 
 ---
 
@@ -40,7 +55,9 @@ Leighton’s face turned red.
 
 Ulysses grinned.
 
-> “She can’t get rid of me.”“Young love is wonderful,” Mrs. Cruz teased.
+> “She can’t get rid of me.”
+> <br/>
+> “Young love is wonderful,” Mrs. Cruz teased.
 > “We’re not—”
 
 Leighton tried to protest, but Mrs. Cruz was already laughing.
@@ -61,11 +78,21 @@ He chuckled.
 
 Leighton had a list of things to buy, and she wanted to get in and out quickly. But Ulysses had other plans. He stopped at almost every stall, asking pointless questions.
 
-> “Leighton, do you think I’d look cool wearing sunglasses?”“No.”“What about a hat?”“No.”“A cape?”
+> “Leighton, do you think I’d look cool wearing sunglasses?”
+> <br/>
+> “No.”
+> <br/>
+> “What about a hat?”
+> <br/>
+> “No.”
+> <br/>
+> “A cape?”
 
 She glared.
 
-> “Are you buying anything or just being annoying?”“Both,” he admitted.
+> “Are you buying anything or just being annoying?”
+> <br/>
+> “Both,” he admitted.
 
 At the fruit stall, an old vendor smiled at them.
 
@@ -89,7 +116,9 @@ She stomped on Ulysses’ foot.
 
 Once they finally left the market, Leighton let out a sigh of relief.
 
-> “That was torture.”“For you,” Ulysses corrected. “I had fun.”
+> “That was torture.”
+> <br/>
+> “For you,” Ulysses corrected. “I had fun.”
 
 She glared at him. He just grinned.
 
@@ -104,7 +133,11 @@ Leighton had been sent to pick up bread, but as soon as she stepped inside, Ulys
 
 She jumped as he suddenly appeared behind her, holding two trays of pastries.
 
-> “You have to try these.”“I don’t—”“Too late. I’m buying them.”
+> “You have to try these.”
+> <br/>
+> “I don’t—”
+> <br/>
+> “Too late. I’m buying them.”
 
 Minutes later, they were sitting outside, eating pastries. Leighton stared at hers, unsure. Ulysses nudged her.
 

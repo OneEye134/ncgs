@@ -28,17 +28,27 @@ Ulysses lazily scanned the paper before smirking.
 
 Leighton’s eye twitched.
 
-> "I already did the work of making the list.""Exactly," he said. "You clearly know more about this than I do, so I trust your judgment."
+> "I already did the work of making the list."
+> <br/>
+> "Exactly," he said. "You clearly know more about this than I do, so I trust your judgment."
 
 Leighton hated how easily he twisted things to his advantage. She exhaled sharply, crossing her arms.
 
-> "Fine. The Industrial Revolution.""Sounds boring," he commented." Then you pick." He grinned. "Nah, I’ll stick with yours. I like watching you get mad."
+> "Fine. The Industrial Revolution."
+> <br/>
+> "Sounds boring," he commented.
+> <br/>
+> "Then you pick."
+> <br/>
+> He grinned. "Nah, I’ll stick with yours. I like watching you get mad."
 
 She wanted to hit him. But instead, she opened her notebook and started jotting down ideas.
 
 For the first ten minutes, Ulysses didn’t contribute anything. He just watched her, resting his chin on his hand. Finally, she turned to him with an unimpressed look.
 
-> "Are you going to help?" He smirked. "I am helping. I’m making sure you don’t mess up."
+> "Are you going to help?"
+> <br/>
+> He smirked. "I am helping. I’m making sure you don’t mess up."
 
 That was it. She grabbed her notebook and smacked him lightly on the arm.
 
@@ -56,11 +66,23 @@ Nathan, Greg, and Oliver. Again.
 
 Leighton tensed immediately, gripping her pen tighter. The three of them strolled up to their table, smirking like usual.
 
-> "Doing homework, huh?" Nathan sneered. "That’s so cute. You two having a little study date?" Greg chuckled. "Bet Leighton does all the work, huh?" Oliver leaned closer. "You should let Ulysses handle the presentation. Wouldn’t want you freezing up in front of everyone."
+> "Doing homework, huh?" Nathan sneered. "That’s so cute. You two having a little study date?"
+> <br/>
+> Greg chuckled. "Bet Leighton does all the work, huh?"
+> <br/>
+> Oliver leaned closer. "You should let Ulysses handle the presentation. Wouldn’t want you freezing up in front of everyone."
 
 Leighton felt her face heat up. She hated how they always knew exactly how to get under her skin. Before she could react, Ulysses sighed dramatically.
 
-> "You guys seriously have nothing better to do, huh?" he said. "Kinda sad." Nathan scoffed. "Relax, man, we’re just messing around.""Yeah?" Ulysses leaned back in his chair, unimpressed. "Well, here’s a joke for you: three guys walk into a library, and nobody cares." Greg blinked. "... What?""Exactly," Ulysses said. "Nobody cares."
+> "You guys seriously have nothing better to do, huh?" he said. "Kinda sad."
+> <br/>
+> Nathan scoffed. "Relax, man, we’re just messing around."
+> <br/>
+> "Yeah?" Ulysses leaned back in his chair, unimpressed. "Well, here’s a joke for you: three guys walk into a library, and nobody cares."
+> <br/>
+> Greg blinked. "... What?"
+> <br/>
+> "Exactly," Ulysses said. "Nobody cares."
 
 Silence. Oliver actually looked a little offended. Nathan clicked his tongue.
 
@@ -76,7 +98,11 @@ Leighton exhaled, trying to relax. Ulysses glanced at her.
 
 She hesitated, then gave a small nod.
 
-> He grinned. "Good. ‘Cause you still owe me for doing all this research." She frowned. "You barely did anything." He smirked. "Exactly. And you let me get away with it. So really, this is your fault."
+> He grinned. "Good. ‘Cause you still owe me for doing all this research."
+> <br/>
+> She frowned. "You barely did anything."
+> <br/>
+> He smirked. "Exactly. And you let me get away with it. So really, this is your fault."
 
 She grabbed her notebook again. He dodged before she could smack him with it.
 
@@ -108,7 +134,9 @@ She rolled her eyes and stepped inside. His house was messy, but not disgusting.
 
 She took a seat at the table instead, pulling out her notebook.
 
-> "Work first," she said firmly. Ulysses groaned. "You’re such a nerd."
+> "Work first," she said firmly.
+> <br/>
+> Ulysses groaned. "You’re such a nerd."
 
 She ignored him and started going through their notes. Eventually, he gave in and joined her. They actually managed to get a lot done, despite Ulysses getting distracted every five minutes.
 
@@ -124,7 +152,11 @@ That made her pause. Slowly, she glanced at him. He was looking at her notes, hi
 
 For some reason, her face felt warm. She quickly looked away.
 
-> "... Shut up." He smirked. "Did I just make you blush?" She kicked his leg under the table. "Ow! Okay, okay, I take it back."
+> "... Shut up."
+> <br/>
+> He smirked. "Did I just make you blush?"
+> <br/>
+> She kicked his leg under the table. "Ow! Okay, okay, I take it back."
 
 She doubted that. But she let it go.
 
@@ -132,7 +164,11 @@ She doubted that. But she let it go.
 
 By the time they finished, it was late. Ulysses walked her home, hands in his pockets, whistling casually.
 
-> "You know," he said, "you’re kinda fun when you’re not trying to kill me." Leighton rolled her eyes. "And you’re tolerable when you’re actually useful." He laughed. "High praise."
+> "You know," he said, "you’re kinda fun when you’re not trying to kill me."
+> <br/>
+> Leighton rolled her eyes. "And you’re tolerable when you’re actually useful."
+> <br/>
+> He laughed. "High praise."
 
 They reached her house, and she hesitated before mumbling,
 

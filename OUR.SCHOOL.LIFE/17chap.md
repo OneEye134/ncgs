@@ -14,23 +14,23 @@ She sat at the far end of the table, her usual hoodie pulled up, flipping throug
 
 He walked up and dropped his bag on the table.
 
-> "Studying that hard, huh?"
+> **"Studying that hard, huh?"**
 
 Leighton didn’t even look up.
 
 Ulysses smirked.
 
-> "You’re gonna burn a hole through that page if you keep writing like that."
+> **"You’re gonna burn a hole through that page if you keep writing like that."**
 
 This time, she did glance at him—just for a second—before returning to her work.
 
 Fritz snickered.
 
-> "Dude, just admit she’s smarter than you and move on."
+> **"Dude, just admit she’s smarter than you and move on."**
 
 Ulysses rolled his eyes and sat down.
 
-> "Whatever. Let’s just get this over with."
+> **"Whatever. Let’s just get this over with."**
 
 The next few hours were filled with the sounds of pages turning, the scratch of pens, and the occasional groans from someone struggling with a difficult problem. Even Ulysses found himself actually trying, which surprised him.
 
@@ -56,13 +56,15 @@ Ulysses clenched his jaw. Not today.
 
 But Royce had already started walking toward them, his friends following close behind.
 
-> "Well, well," Royce sneered, stopping beside their table." What do we have here? A little study group?"
+> **"Well, well,"**
+> Royce sneered, stopping beside their table.
+> **"What do we have here? A little study group?"**
 
 His gang chuckled, surrounding the table.
 
 Leonard frowned.
 
-> "Just leave us alone, man."
+> **"Just leave us alone, man."**
 
 Royce ignored him. His eyes landed on Leighton.
 
@@ -70,17 +72,17 @@ She had gone completely still.
 
 Royce smirked.
 
-> "Hey, look. It’s the little quiet girl."
+> **"Hey, look. It’s the little quiet girl."**
 
 Leighton didn’t respond.
 
 One of the other bullies leaned in closer.
 
-> "What’s wrong? Too scared to talk?"
+> **"What’s wrong? Too scared to talk?"**
 
 Royce chuckled.
 
-> "Maybe she thinks she’s better than us."
+> **"Maybe she thinks she’s better than us."**
 
 Ulysses could see it—the way Leighton’s hands trembled slightly.
 
@@ -88,22 +90,27 @@ Royce suddenly reached out and snatched Leighton’s notebook off the table.
 
 Leighton jolted up, her face paling.
 
-> "Give it back," she muttered, barely audible.
-> "What was that?" Royce taunted, waving the notebook around." Speak up."
+> **"Give it back,"**
+> she muttered, barely audible.
+> **"What was that?"**
+> Royce taunted, waving the notebook around.
+> **"Speak up."**
 
 Leighton bit her lip, but she didn’t back down.
 
-> "I said give it back."
+> **"I said give it back."**
 
 Royce smirked.
 
-> "Or what?"
+> **"Or what?"**
 
 Ulysses tensed. He wanted to step in, but he knew how this worked. Royce and his gang were too strong. Fighting back would only make things worse.
 
 Leighton stood up abruptly, reaching for her notebook, but Royce yanked it away, laughing.
 
-> "Hey!" Fritz snapped." Just give it back!"
+> **"Hey!"**
+> Fritz snapped.
+> **"Just give it back!"**
 
 But Royce wasn’t done yet. He flipped through the pages, then suddenly ripped one out.
 
@@ -115,7 +122,7 @@ Ulysses saw it—the way her eyes widened, the way her hands clenched into fists
 
 Royce crumpled the page and tossed it onto the floor.
 
-> "Oops."
+> **"Oops."**
 
 Silence.
 
@@ -129,27 +136,30 @@ The entire library went silent.
 
 Ulysses stood up immediately.
 
-> "That’s enough."
+> **"That’s enough."**
 
 Royce raised an eyebrow.
 
-> "Oh? You wanna do something about it?"
+> **"Oh? You wanna do something about it?"**
 
 Ulysses knew he couldn’t win, but seeing Leighton on the ground, humiliated, made his blood boil.
 
 Before he could move, Royce’s friends stepped forward, cracking their knuckles.
 
-> "You should stay down," one of them sneered.
+> **"You should stay down,"**
+> one of them sneered.
 
 Ulysses hesitated. They were too strong.
 
 Royce smirked.
 
-> "That’s what I thought."
+> **"That’s what I thought."**
 
 He turned back to Leighton, who was slowly picking herself up.
 
-> "You should just stay quiet like always," he said, tossing her notebook onto the floor." You’re pathetic."
+> **"You should just stay quiet like always,"**
+> he said, tossing her notebook onto the floor.
+> **"You’re pathetic."**
 
 Leighton’s face burned red—not just from embarrassment, but from pure rage. But she didn’t say anything.
 
@@ -157,11 +167,11 @@ The bullies laughed as they walked away, leaving Ulysses and his classmates froz
 
 Fritz clenched his fists.
 
-> "We should’ve done something."
+> **"We should’ve done something."**
 
 Val nodded, furious.
 
-> "I hate them."
+> **"I hate them."**
 
 Leighton, however, said nothing. She simply picked up her notebook, dusted it off, and sat back down, her face unreadable.
 

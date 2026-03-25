@@ -10,7 +10,9 @@ The moment their group was announced, Ulysses turned to Leighton, who was alread
 
 She shot him a glare that could have burned a hole through steel.
 
-> “No.”“Well, that makes two of us.”
+> “No.”
+> <br/>
+> “Well, that makes two of us.”
 
 Their other teammates weren’t exactly promising—Leonard and Christian, who were notorious for slacking off, and Kyzen, who had already pulled out a detailed list of things that needed to be done, complete with color-coded tabs and a five-step plan for success.
 
@@ -82,11 +84,17 @@ Ulysses, meanwhile, leaned against the wall, watching as Leighton sat on the edg
 
 He smirked.
 
-> “Bet you regret letting us in.”“Obviously.”“Want me to kick them out?”
+> “Bet you regret letting us in.”
+> <br/>
+> “Obviously.”
+> <br/>
+> “Want me to kick them out?”
 
 She gave him a flat look.
 
-> “You’d probably make it worse.”“Fair point.”
+> “You’d probably make it worse.”
+> <br/>
+> “Fair point.”
 
 They fell into a comfortable silence, the soft clicking of Nathan’s typing the only sound in the room.
 
@@ -100,7 +108,9 @@ Kyzen didn’t even look up.
 
 Leighton hesitated, clearly debating whether or not to leave him alone with her laptop, but in the end, exhaustion won.
 
-> “Fine,” she mumbled, standing up. “Just… don’t break anything.”“I would never,” Nathan replied seriously.
+> “Fine,” she mumbled, standing up. “Just… don’t break anything.”
+> <br/>
+> “I would never,” Nathan replied seriously.
 
 Ulysses snorted, shaking his head.
 
@@ -108,7 +118,9 @@ Ulysses snorted, shaking his head.
 
 She blinked.
 
-> “Why would I do that?”“Because I’m scared of the dark.”
+> “Why would I do that?”
+> <br/>
+> “Because I’m scared of the dark.”
 
 She gave him the flattest look imaginable, but to his surprise, after a moment, she sighed and grabbed her jacket.
 

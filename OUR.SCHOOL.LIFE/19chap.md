@@ -4,7 +4,7 @@ The schoolyard buzzed with anticipation as students gathered for P. E. class. To
 
 Ulysses cracked his knuckles and stretched his arms.
 
-> "Alright, same plan as always. We work together and don’t get caught."
+> **"Alright, same plan as always. We work together and don’t get caught."**
 
 Leighton stood silently beside him, her arms crossed. She already regretted being here. She hated sports, hated running, and definitely hated the idea of being chased by Royce and his friends. But the teams were set, and backing out wasn’t an option.
 
@@ -18,11 +18,13 @@ Leighton was already struggling. Her legs felt heavy, and each step drained her 
 
 It wasn’t long before Royce locked eyes on her, grinning as he started to chase.
 
-> "Why do you look so scared?" Royce taunted, his strides closing the distance with ease.
+> **"Why do you look so scared?"**
+> Royce taunted, his strides closing the distance with ease.
 
 Leighton pushed herself to move faster, but her body was already tiring. Just when it seemed like Royce would catch her, Ulysses appeared, grabbing her wrist and pulling her away.
 
-> "Move it, slowpoke," Ulysses said with a smirk, dragging her behind him.
+> **"Move it, slowpoke,"**
+> Ulysses said with a smirk, dragging her behind him.
 
 Leighton shot him an annoyed glare but didn’t protest. She focused on keeping pace, her heart pounding as they dodged between classmates.
 
@@ -34,7 +36,8 @@ The game stretched longer than anyone expected. It became a battle of endurance,
 
 At one point, Ulysses and Royce crossed paths. They locked eyes, their rivalry sharp and unspoken.
 
-> "You look tired," Ulysses teased.
+> **"You look tired,"**
+> Ulysses teased.
 
 Royce lunged, but Ulysses sidestepped easily, letting Royce stumble forward. The frustration on Royce’s face was almost worth the exhaustion.
 
@@ -42,7 +45,7 @@ Finally, the teacher blew the whistle, signaling the end of the game. Almost eve
 
 Leighton sat on the grass, glaring at Ulysses, who grinned down at her.
 
-> "You owe me for saving you."
+> **"You owe me for saving you."**
 
 Leighton rolled her eyes and looked away, too exhausted to argue.
 
@@ -50,6 +53,7 @@ Royce and his friends muttered complaints, annoyed they hadn’t dominated the g
 
 As the group slowly recovered, Ulysses stretched his arms and glanced at Leighton.
 
-> "Guess you don’t hate P. E. that much now, huh?" he teased.
+> **"Guess you don’t hate P. E. that much now, huh?"**
+> he teased.
 
 Leighton grabbed a nearby water bottle and tossed it at him.

@@ -23,7 +23,11 @@ She sighed, rubbing her temples, already regretting everything. But before she c
 
 That caught Leighton’s attention. For a brief moment, she felt hopeful—maybe, just maybe, they’d get paired with someone serious. Someone who would balance out Ulysses' ridiculousness.
 
-But that hope shattered instantly when the teacher called out two more names:andFritz.
+But that hope shattered instantly when the teacher called out two more names:
+****
+and
+**Fritz**
+.
 
 The entire class froze. If Ulysses was a menace, then Daniel and Fritz were absolute disasters. They were the type of students who rarely did homework, never took anything seriously, and spent most of their time cracking jokes in the back of the classroom. Even Ulysses, for all his teasing, was still a decent student when he actually tried, but  and Fritz? Lost causes.
 

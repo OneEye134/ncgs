@@ -22,7 +22,9 @@ Ulysses didn’t quite believe her, but he let it go. Instead, he sighed dramati
 
 She shot him a sharp glare, but her flushed ears betrayed her irritation.
 
-> "Not really,&qreallyqreally,&quotuot she mumbled, shifting slightly." Ouch. That actually hurt a little."
+> "Not really,&qreallyqreally,&quotuot she mumbled, shifting slightly.
+> <br/>
+> "Ouch. That actually hurt a little."
 
 She rolled her eyes and pulled her hood up, as if that would make a difference when she was already soaked.
 
@@ -38,7 +40,11 @@ She hesitated, then slowly shook her head.
 
 Another shake.
 
-> "Man, you really missed out.""I don’t like getting wet.""Too late for that," he pointed out.
+> "Man, you really missed out."
+> <br/>
+> "I don’t like getting wet."
+> <br/>
+> "Too late for that," he pointed out.
 
 She huffed but didn’t argue. The silence stretched between them, filled only by the sound of raindrops hitting the pavement.
 
@@ -52,15 +58,25 @@ Ulysses rocked on his heels, then suddenly grinned.
 
 She turned to him sharply.
 
-> "... What?""You know, make a break for it. Sprint home. Bet I’d get there first."
+> "... What?"
+> <br/>
+> "You know, make a break for it. Sprint home. Bet I’d get there first."
 
 Her expression shifted from annoyed to horrified in an instant.
 
-> "No.""Oh, come on, where’s your sense of adventure?""It’s dry and waiting for me at home.""Booooring," he teased, leaning closer. "C’mon, Leighton, live a little."
+> "No."
+> <br/>
+> "Oh, come on, where’s your sense of adventure?"
+> <br/>
+> "It’s dry and waiting for me at home."
+> <br/>
+> "Booooring," he teased, leaning closer. "C’mon, Leighton, live a little."
 
 She scowled, stepping away.
 
-> "I’d rather wait.""Suit yourself," he said, stretching. "Guess we’re stuck together a little longer. How tragic."
+> "I’d rather wait."
+> <br/>
+> "Suit yourself," he said, stretching. "Guess we’re stuck together a little longer. How tragic."
 
 She sighed, muttering something under her breath. He couldn’t hear it, but judging by the look on her face, it wasn’t anything nice.
 
@@ -76,11 +92,15 @@ He looked around again, then grinned when he spotted a small stall selling stree
 
 She frowned.
 
-> "... Why?""Because I am. And because that guy over there is selling fish balls. And because you look like you haven’t eaten since last century."
+> "... Why?"
+> <br/>
+> "Because I am. And because that guy over there is selling fish balls. And because you look like you haven’t eaten since last century."
 
 She crossed her arms.
 
-> "I’m fine.""Liar," he said, already stepping away from the awning. "Wait here, I’ll be back."
+> "I’m fine."
+> <br/>
+> "Liar," he said, already stepping away from the awning. "Wait here, I’ll be back."
 
 She didn’t have time to protest before he was already jogging toward the stall, completely ignoring the rain.
 
@@ -100,7 +120,9 @@ By the time Ulysses returned, his hair was dripping, and he was holding up a pla
 
 She stared at him, then at the skewers.
 
-> "... I didn’t ask for that.""Yeah, but you’re getting one anyway," he said, holding it out.
+> "... I didn’t ask for that."
+> <br/>
+> "Yeah, but you’re getting one anyway," he said, holding it out.
 
 She hesitated before sighing and reluctantly taking a stick. The first bite was warm, crispy, and surprisingly comforting.
 

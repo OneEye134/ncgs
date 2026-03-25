@@ -4,7 +4,9 @@
 
 Leighton hated group projects. They always meant talking to people, making decisions, and dealing with distractions. Worst of all, she’d been paired with Ulysses. The moment the teacher announced their names together, she knew she was doomed.
 
-> “Lucky us,” Ulysses said, grinning. “We get to spend even more time together.”“Unlucky,” Leighton replied, staring at him.
+> “Lucky us,” Ulysses said, grinning. “We get to spend even more time together.”
+> <br/>
+> “Unlucky,” Leighton replied, staring at him.
 
 Their group also included three other classmates—Yeshe, a friendly but easily distracted guy; Val, who was always on his phone; and Ichiro, who actually wanted to work. Unfortunately, Ichiro had no control over the others.
 
@@ -14,11 +16,23 @@ Their group also included three other classmates—Yeshe, a friendly but easily 
 
 They met at a small café near their school to discuss their project. Leighton had hoped it would be quick and quiet. She was wrong.
 
-> “So, what’s our topic again?” Yeshe asked, chewing on his straw.“We’re supposed to make a report about urban development,” Ichiro sighed.“Boring,” Ulysses muttered.“We could make it interesting,” Val said, not looking up from his phone. “Like, add explosions or something.”“It’s a research paper,” Leighton said flatly.
+> “So, what’s our topic again?” Yeshe asked, chewing on his straw.
+> <br/>
+> “We’re supposed to make a report about urban development,” Ichiro sighed.
+> <br/>
+> “Boring,” Ulysses muttered.
+> <br/>
+> “We could make it interesting,” Val said, not looking up from his phone. “Like, add explosions or something.”
+> <br/>
+> “It’s a research paper,” Leighton said flatly.
 
 After thirty minutes of pointless chatter, Leighton’s patience was running out.
 
-> “Can we start?” she muttered.“Relax,” Ulysses said, stretching. “We have time.”“No, we don’t.”
+> “Can we start?” she muttered.
+> <br/>
+> “Relax,” Ulysses said, stretching. “We have time.”
+> <br/>
+> “No, we don’t.”
 
 ---
 
@@ -31,11 +45,23 @@ Eventually, they assigned tasks:
 - Yeshewould handle the visuals.
 - Valwould edit.
 - Ulysses... had no assigned role.
-> “What about me?” Ulysses asked, faking hurt.“You do nothing,” Leighton said.“Ouch.”
+> “What about me?” Ulysses asked, faking hurt.
+> <br/>
+> “You do nothing,” Leighton said.
+> <br/>
+> “Ouch.”
 
 Despite that, Ulysses still hovered over her.
 
-> “What are you researching?”“The topic.”“Can I help?”“No.”“Want coffee?”
+> “What are you researching?”
+> <br/>
+> “The topic.”
+> <br/>
+> “Can I help?”
+> <br/>
+> “No.”
+> <br/>
+> “Want coffee?”
 
 She glared.
 
@@ -50,7 +76,15 @@ Two hours passed.
 - Yeshe got distracted watching videos.
 - Val kept texting someone.
 - Ulysses wouldn’t stop poking Leighton’s arm.
-> “You look serious,” he said.“Because I’m working.”“You should take a break.”“I don’t want to.”“Live a little.”
+> “You look serious,” he said.
+> <br/>
+> “Because I’m working.”
+> <br/>
+> “You should take a break.”
+> <br/>
+> “I don’t want to.”
+> <br/>
+> “Live a little.”
 
 She grabbed his wrist and slammed his hand onto the table.
 
@@ -64,7 +98,9 @@ Ulysses blinked.
 
 Yeshe and Val stared.
 
-> “She’s scary,” Yeshe whispered.“I respect it,” Val added.
+> “She’s scary,” Yeshe whispered.
+> <br/>
+> “I respect it,” Val added.
 
 ---
 
@@ -72,13 +108,23 @@ Yeshe and Val stared.
 
 By the end of the meeting, they had barely made progress.
 
-> “We’re behind schedule,” Leighton muttered.“We’ll catch up,” Ulysses said lazily.“How?”“Hard work, determination, and believing in ourselves.”
+> “We’re behind schedule,” Leighton muttered.
+> <br/>
+> “We’ll catch up,” Ulysses said lazily.
+> <br/>
+> “How?”
+> <br/>
+> “Hard work, determination, and believing in ourselves.”
 
 She wanted to strangle him.
 
 As they left the café, Ulysses walked beside her.
 
-> “You’re too stressed,” he said.“Because of you.”“Because of life,” he corrected. “Chill out, Leighton.”
+> “You’re too stressed,” he said.
+> <br/>
+> “Because of you.”
+> <br/>
+> “Because of life,” he corrected. “Chill out, Leighton.”
 
 She didn’t reply.
 
@@ -88,7 +134,26 @@ She didn’t reply.
 
 That night, she worked late, determined to finish her part. But as she typed, she received a text.
 
-Ulysses:“Still awake?”Leighton:“Obviously.”Ulysses:“Go to sleep.”Leighton:“No.”Ulysses:“You’re going to collapse one day.”Leighton:“Then I’ll collapse in peace.”Ulysses:“At least take a break.”
+**Ulysses:**
+“Still awake?”
+<br/>
+**Leighton:**
+“Obviously.”
+<br/>
+**Ulysses:**
+“Go to sleep.”
+<br/>
+**Leighton:**
+“No.”
+<br/>
+**Ulysses:**
+“You’re going to collapse one day.”
+<br/>
+**Leighton:**
+“Then I’ll collapse in peace.”
+<br/>
+**Ulysses:**
+“At least take a break.”
 
 She stared at her screen.
 

@@ -1,6 +1,9 @@
 [secret-chapter-the-ultimate-disaster]# Secret Chapter: The Ultimate Disaster
 
-Ulysseshad done a lot of things to annoyLeightonbefore.
+**Ulysses**
+had done a lot of things to annoy
+**Leighton**
+before.
 
 But this? This was on a whole other level.
 
@@ -20,25 +23,36 @@ He wasn’t expecting much—maybe some boring messages, a few embarrassing sear
 
 But then he saw it.
 
-Agame.
+A
+**game**
+.
 
 Not just any game.
 
-It was anMMORPGshe had been playing forfive years straight.
+It was an
+**MMORPG**
+she had been playing for
+**five years straight**
+.
 
 The moment he clicked on it, a pop-up appeared:
 
-> “Are you sure you want to delete this game?”
+> *“Are you sure you want to delete this game?”*
 
-Ulysses meant to press"Cancel."
+Ulysses meant to press
+**"Cancel."**
 
-Hereallydid.
+He
+**really**
+did.
 
-But his fingerslipped.
+But his finger
+**slipped**
+.
 
 And in that moment—
 
-> Everything. Was. Gone.
+> **Everything. Was. Gone.**
 
 ---
 
@@ -46,13 +60,19 @@ And in that moment—
 
 A cold chill ran down his spine.
 
-> No. No, no, no, no.
+> *No. No, no, no, no.*
 
-He quickly tried to undo it. Checked the app store, searched for a recovery option—nothing.
+He quickly tried to undo it.
+<br/>
+Checked the app store, searched for a recovery option—
+**nothing**
+.
 
 It was gone.
 
-Ulyssesfroze.
+Ulysses
+**froze**
+.
 
 Then, very, very slowly… he turned his head.
 
@@ -60,17 +80,24 @@ Leighton was still writing in her notebook.
 
 She hadn’t noticed.
 
-> Maybe she won’t find out until later, Ulysses thought. Maybe I can run away before then.
+> *Maybe she won’t find out until later,*
+> Ulysses thought.
+> <br/>
+> *Maybe I can run away before then.*
 
 Then—
 
 > “…Where’s my phone?”
 
-Ulyssesflinched.
+Ulysses
+**flinched**
+.
 
 Leighton turned. She saw the phone in his hands.
 
-Her eyesnarrowed.
+Her eyes
+**narrowed**
+.
 
 > “…What are you doing?”
 
@@ -94,7 +121,9 @@ She grabbed the phone, checked it, and saw the truth.
 
 For a moment, she didn’t move.
 
-She just…staredat the screen.
+She just…
+**stared**
+at the screen.
 
 > “…You deleted it.”
 
@@ -108,18 +137,28 @@ Then, in a voice so cold it could freeze hell itself—
 
 > “…Ulysses.”
 
-And then shelunged.
+And then she
+**lunged**
+.
 
-> “OH, SHOOT—!!”
+> “
+> **OH, SHOOT—!!**
+> ”
 
 Ulysses bolted out the door, Leighton hot on his heels.
 
-> “GET BACK HERE!!”
-> “I SAID IT WAS AN ACCIDENT!!”
+> “
+> **GET BACK HERE!!**
+> ”
+> “
+> **I SAID IT WAS AN ACCIDENT!!**
+> ”
 
 Leighton grabbed a chair.
 
-Ulysses barely ducked as itsoared over his head.
+Ulysses barely ducked as it
+**soared over his head**
+.
 
 ---
 
@@ -128,8 +167,12 @@ Ulysses barely ducked as itsoared over his head.
 - Library:Ulysses dashed in, knocking over bookshelves. The librarian yelled.
 - Cafeteria:Leighton grabbed a lunch tray and threw it like a frisbee. Ulysses dodged.
 - Hallways:Ulysses slid under a janitor’s cart. Leighton jumped over it like an action movie.
-> “LEIGHTON, STOP!!”
-> “FIVE YEARS, ULYSSES. FIVE YEARS.”
+> “
+> **LEIGHTON, STOP!!**
+> ”
+> “
+> **FIVE YEARS, ULYSSES. FIVE YEARS.**
+> ”
 
 Ulysses ran faster.
 
@@ -137,16 +180,18 @@ Ulysses ran faster.
 
 [final-showdown]## Final Showdown
 
-He made it to therooftop, out of breath, no escape left.
+He made it to the
+**rooftop**
+, out of breath, no escape left.
 
 Leighton walked in slowly, eyes shadowed, pure rage radiating from her.
 
 > “I-I can buy you a new account?”
 
-Silence.
+**Silence.**
 
 Leighton cracked her knuckles.
 
 Ulysses gulped.
 
-> Screams echoed through the school.
+> **Screams echoed through the school.**

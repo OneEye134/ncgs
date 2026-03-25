@@ -12,11 +12,19 @@ Leighton pulled out her neatly folded shopping list and mumbled,
 
 Before she could tuck it away, Ulysses's fingers twitched, clearly tempted to snatch it from her hands.
 
-> "Boring," Ulysses said, stretching. "Where’s the fun stuff? No snacks? No candy?""I’m here to buy groceries, not junk food," she replied, already heading toward the vegetable stalls, hoping he would lose interest and wander off somewhere else.
+> "Boring," Ulysses said, stretching. "Where’s the fun stuff? No snacks? No candy?"
+> <br/>
+> "I’m here to buy groceries, not junk food," she replied, already heading toward the vegetable stalls, hoping he would lose interest and wander off somewhere else.
 
 Of course, he followed her like a persistent shadow.
 
-> "Lame," he sighed dramatically, before suddenly grabbing a random vegetable and holding it up. "What is this?""... A cabbage," Leighton said, staring." Are you sure? It looks weird.""That’s because you’re holding it upside down."
+> "Lame," he sighed dramatically, before suddenly grabbing a random vegetable and holding it up. "What is this?"
+> <br/>
+> "... A cabbage," Leighton said, staring.
+> <br/>
+> "Are you sure? It looks weird."
+> <br/>
+> "That’s because you’re holding it upside down."
 
 He blinked, slowly flipping it.
 
@@ -34,7 +42,15 @@ As Leighton inspected the tomatoes, pressing each one carefully, Ulysses picked 
 
 She gave him a flat look.
 
-> "Stop that.""Oh, come on, Leighton, where’s your sense of fun? You’re acting like a stressed-out mom shopping for a family of five.""I’d be less stressed if you weren’t here.""Ouch. That hurts, you know.""Good."
+> "Stop that."
+> <br/>
+> "Oh, come on, Leighton, where’s your sense of fun? You’re acting like a stressed-out mom shopping for a family of five."
+> <br/>
+> "I’d be less stressed if you weren’t here."
+> <br/>
+> "Ouch. That hurts, you know."
+> <br/>
+> "Good."
 
 Ulysses laughed, but before he could tease her more, a commotion broke out near the seafood section—a loud shout, followed by the unmistakable splash of water.
 
@@ -48,7 +64,11 @@ Ulysses blinked.
 
 Leighton, however, looked worried.
 
-> "Should we… stop him?""Nah, I wanna see how this plays out.""Ulysses."
+> "Should we… stop him?"
+> <br/>
+> "Nah, I wanna see how this plays out."
+> <br/>
+> "Ulysses."
 
 He sighed dramatically before stepping forward just as the boy darted past again. With quick reflexes, he grabbed the kid by the collar, lifting him off the ground.
 
@@ -77,7 +97,9 @@ The vendor crossed his arms, grumbling.
 
 Leighton quickly pulled out some money, handing it over. The boy stared up at them in shock.
 
-> "... You’re really paying for me?""Just don’t do it again," Leighton mumbled, looking away, her ears turning pink.
+> "... You’re really paying for me?"
+> <br/>
+> "Just don’t do it again," Leighton mumbled, looking away, her ears turning pink.
 
 The boy nodded quickly, clutching the fish to his chest before running off. As the vendor walked away, Ulysses smirked.
 

@@ -2,14 +2,21 @@
 
 [a-day-out]## A Day Out
 
-Leighton had learned two things about life. First, never trust Ulysses when he says "we're going everywhere." Second, never agree to group outings if she valued her peace of mind.
+Leighton had learned two things about life. First,
+**never trust Ulysses when he says "we're going everywhere."**
+Second,
+**never agree to group outings if she valued her peace of mind.**
 
 Yet here she was.
 
-Standing at the mall entrance, arms crossed, already regrettingevery single decisionthat had led to this moment.
+Standing at the mall entrance, arms crossed, already regretting
+*every single decision*
+that had led to this moment.
 
-> "Alright, what’s the plan?" Fritz asked, grinning.
-> Ulysses stretched." Simple. We go everywhere."
+> **"Alright, what’s the plan?"**
+> Fritz asked, grinning.
+> Ulysses stretched.
+> **"Simple. We go everywhere."**
 
 That should’ve been her first warning.
 
@@ -19,10 +26,13 @@ The moment they entered, the cool air-conditioning hit them, mixing with the sce
 
 Leighton stayed still, already feeling the headache forming.
 
-> "You wanna try a claw machine?" Ulysses nudged her.
-> She shot him a look." No."
-> "Come on."
-> She hesitated. Then sighed." Fine."
+> **"You wanna try a claw machine?"**
+> Ulysses nudged her.
+> She shot him a look.
+> **"No."**
+> **"Come on."**
+> She hesitated. Then sighed.
+> **"Fine."**
 
 Mistake number two.
 
@@ -30,42 +40,49 @@ Mistake number two.
 
 They walked to the arcade. Fritz was already celebrating a win at a rhythm game.
 
-> "Hey, Ulysses, think you can beat me?" he challenged.
-> Ulysses smirked." I don’t think—I know."
+> **"Hey, Ulysses, think you can beat me?"**
+> he challenged.
+> Ulysses smirked.
+> **"I don’t think—I know."**
 
 Meanwhile, Leighton was focused on the claw machine. Ulysses slipped a coin into the slot for her. She carefully maneuvered the claw, her expression tense. The claw lowered, gripped a plush toy—then slipped.
 
 Leighton’s shoulders stiffened. Ulysses bit back a laugh.
 
-> "Want another try?"
+> **"Want another try?"**
 
 She glared but took the coin anyway. On her third attempt, the claw finally snagged a small pink rabbit, dropping it into the prize chute.
 
 And instead of holding it, she shoved it into Ulysses' hands before looking away, her face red.
 
-> "Huh? For me?" he blinked.
-> "No."
+> **"Huh? For me?"**
+> he blinked.
+> **"No."**
 
 Christian, who had been watching, snickered.
 
-> "You should just take it, man."
+> **"You should just take it, man."**
 
 ---
 
 They spent another hour at the arcade, laughing and competing over games. By the time they reached the food court, everyone was starving.
 
-> "So, what’s next? The park?" Daniel asked, poking at his fries.
-> "Yeah," Leonard agreed." We can walk, maybe play some basketball."
+> **"So, what’s next? The park?"**
+> Daniel asked, poking at his fries.
+> **"Yeah,"**
+> Leonard agreed.
+> **"We can walk, maybe play some basketball."**
 
 Leighton sipped her drink, saying nothing.
 
 Ulysses noticed.
 
-> "What, you wanna play too?" he teased.
+> **"What, you wanna play too?"**
+> he teased.
 
 She scowled but stayed silent.
 
-> "Alright, alright. No need to be shy about your terrible skills."
+> **"Alright, alright. No need to be shy about your terrible skills."**
 
 She kicked his shin.
 
@@ -73,10 +90,15 @@ She kicked his shin.
 
 The park was busy—kids playing, joggers running, families laughing. Fritz and Val quickly claimed an empty basketball court.
 
-> "You in?" Daniel asked Ulysses.
-> Ulysses stretched." Of course." He turned to Leighton." What about you?"
-> "No."
-> "Scared you'll lose?" he smirked.
+> **"You in?"**
+> Daniel asked Ulysses.
+> Ulysses stretched.
+> **"Of course."**
+> He turned to Leighton.
+> **"What about you?"**
+> **"No."**
+> **"Scared you'll lose?"**
+> he smirked.
 
 She responded by throwing a chip at him.
 
@@ -86,7 +108,8 @@ The game began, intense and competitive. Fritz, Christian, and Val on one side. 
 
 Leighton watched, munching on chips, unimpressed.
 
-> "Sure you don’t wanna play?" Ulysses called.
+> **"Sure you don’t wanna play?"**
+> Ulysses called.
 
 She threw another chip at him.
 
@@ -96,11 +119,11 @@ By the time the sun began to set, they were exhausted but satisfied. Walking hom
 
 Ulysses glanced at Leighton.
 
-> "Had fun?"
+> **"Had fun?"**
 
 She hesitated, then gave a small nod.
 
-> "Told you we were going everywhere."
+> **"Told you we were going everywhere."**
 
 She rolled her eyes but didn’t argue.
 

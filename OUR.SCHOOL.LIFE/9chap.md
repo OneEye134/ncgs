@@ -2,21 +2,38 @@
 
 [midnight-conversations]## Midnight Conversations
 
-Leightonnever expected to be outside this late at night—especially not with Ulysses. 
+<button onclick="alert('Unlock Chapter: The Night of Absolute Terror; Code: AAAAHHHH')" style="background: none; border: none; padding: 0; margin: 0; 
+               font-weight: 525; font-size: inherit; font-family: inherit; 
+               color: inherit; cursor: pointer;">
+        Leighton
+    </button>
+never expected to be outside this late at night—especially not with Ulysses. 
     She didn’t even know why she’d agreed to go on this pointless walk in the first place. 
     But there she was, walking down the quiet streets of their neighborhood, guided only by the dim glow of streetlights.
 
 The air was cool, carrying the hum of crickets and the occasional bark of a distant dog. Leighton tugged her hoodie tighter around herself, staring straight ahead and refusing to look at the idiot beside her.
 
-> "Cold?" Ulysses asked, glancing at her. She shook her head." Liar," he muttered, shrugging off his jacket and draping it over her shoulders before she could protest.
+> "Cold?" Ulysses asked, glancing at her.
+> <br/>
+> She shook her head.
+> <br/>
+> "Liar," he muttered, shrugging off his jacket and draping it over her shoulders before she could protest.
 
 She stiffened.
 
-> "... I didn't ask for this.""And I didn't ask for you to be so stubborn, but here we are," he said easily, shoving his hands into his pockets.
+> "... I didn't ask for this."
+> <br/>
+> "And I didn't ask for you to be so stubborn, but here we are," he said easily, shoving his hands into his pockets.
 
 She could feel the warmth of his jacket, and for some reason, that made her ears heat up. Annoying.
 
-> "Why are we even out here?" she muttered, kicking a small pebble on the sidewalk." Because I couldn't sleep, and I figured you'd be awake too.""... How did you know?""Because you're you."
+> "Why are we even out here?" she muttered, kicking a small pebble on the sidewalk.
+> <br/>
+> "Because I couldn't sleep, and I figured you'd be awake too."
+> <br/>
+> "... How did you know?"
+> <br/>
+> "Because you're you."
 
 She frowned. That wasn’t an answer.
 
@@ -44,15 +61,29 @@ Ulysses rocked slightly, the chains creaking.
 
 Leighton blinked, caught off guard by the question.
 
-> "... No.""Liar."
+> "... No."
+> <br/>
+> "Liar."
 
 She exhaled, staring at her hands.
 
-> "I don't know. It’s not like I had a choice.""Would you have wanted one?"
+> "I don't know. It’s not like I had a choice."
+> <br/>
+> "Would you have wanted one?"
 
 She hesitated.
 
-> "... Maybe.""Harsh.""It's the truth.""I like to think we'd still meet somehow," he mused. "Like, even if we went to different schools or lived in different places, fate would just push us together anyway.""That's stupid," she said, but her voice lacked its usual bite." Yeah, but it's a nice thought."
+> "... Maybe."
+> <br/>
+> "Harsh."
+> <br/>
+> "It's the truth."
+> <br/>
+> "I like to think we'd still meet somehow," he mused. "Like, even if we went to different schools or lived in different places, fate would just push us together anyway."
+> <br/>
+> "That's stupid," she said, but her voice lacked its usual bite.
+> <br/>
+> "Yeah, but it's a nice thought."
 
 ---
 
@@ -80,15 +111,33 @@ Ulysses was silent for a moment, then leaned back, staring at the sky.
 
 Leighton turned to him, surprised.
 
-> "You?""Yeah," he said, kicking the ground lightly. "I mean, everyone thinks I just mess around all the time, and... yeah, okay, I do. But it’s not like I have everything figured out either. I just don’t let it get to me.""How?""By not thinking about it too much.""That's dumb.""And yet, it works."
+> "You?"
+> <br/>
+> "Yeah," he said, kicking the ground lightly. "I mean, everyone thinks I just mess around all the time, and... yeah, okay, I do. But it’s not like I have everything figured out either. I just don’t let it get to me."
+> <br/>
+> "How?"
+> <br/>
+> "By not thinking about it too much."
+> <br/>
+> "That's dumb."
+> <br/>
+> "And yet, it works."
 
 She huffed, looking away.
 
-> "I don’t get you.""I don’t get me either," he admitted. "But I do know one thing.""... What?""You’re not falling behind, Leighton. You’re just... moving at your own pace."
+> "I don’t get you."
+> <br/>
+> "I don’t get me either," he admitted. "But I do know one thing."
+> <br/>
+> "... What?"
+> <br/>
+> "You’re not falling behind, Leighton. You’re just... moving at your own pace."
 
 She frowned.
 
-> "That sounds like something you'd say just to make me feel better.""Maybe. But that doesn’t make it any less true."
+> "That sounds like something you'd say just to make me feel better."
+> <br/>
+> "Maybe. But that doesn’t make it any less true."
 
 ---
 
@@ -96,11 +145,31 @@ She frowned.
 
 She didn’t know how to respond to that, so she just looked down at her shoes. The wind blew softly, rustling the leaves.
 
-> "You should stop doubting yourself so much," Ulysses said, standing up and stretching. "You’re smarter than you think, and you work harder than you give yourself credit for. So what if you don’t have everything figured out yet? Nobody does.""... You sound way too serious right now. It's weird.""You want me to go back to teasing you?""No.""Too late. I was gonna say something nice, but now I won’t.""... Good.""I was totally gonna compliment you.""I don't care.""I was gonna say that your hair looks nice tonight."
+> "You should stop doubting yourself so much," Ulysses said, standing up and stretching. "You’re smarter than you think, and you work harder than you give yourself credit for. So what if you don’t have everything figured out yet? Nobody does."
+> <br/>
+> "... You sound way too serious right now. It's weird."
+> <br/>
+> "You want me to go back to teasing you?"
+> <br/>
+> "No."
+> <br/>
+> "Too late. I was gonna say something nice, but now I won’t."
+> <br/>
+> "... Good."
+> <br/>
+> "I was totally gonna compliment you."
+> <br/>
+> "I don't care."
+> <br/>
+> "I was gonna say that your hair looks nice tonight."
 
 Leighton’s face heated up.
 
-> "Shut up.""But now I won’t.""Ulysses."
+> "Shut up."
+> <br/>
+> "But now I won’t."
+> <br/>
+> "Ulysses."
 
 He laughed, stepping back as she reached out to shove him.
 
@@ -108,7 +177,9 @@ He laughed, stepping back as she reached out to shove him.
 
 She glared, but there was no real anger behind it.
 
-> "... We should go back.""Yeah," he agreed, falling into step beside her as they walked home.
+> "... We should go back."
+> <br/>
+> "Yeah," he agreed, falling into step beside her as they walked home.
 
 The night felt quieter now, but in a way that wasn’t so suffocating. For once, Leighton didn’t mind the silence.
 
@@ -118,7 +189,11 @@ The night felt quieter now, but in a way that wasn’t so suffocating. For once,
 
 When they reached her gate, she paused, hesitating.
 
-> "... Thanks," she muttered." For what?""I don't know. Just... thanks."
+> "... Thanks," she muttered.
+> <br/>
+> "For what?"
+> <br/>
+> "I don't know. Just... thanks."
 
 Ulysses blinked, then smiled.
 
