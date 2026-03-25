@@ -176,7 +176,7 @@ function loadChapter() {
     if (!document.getElementById('chap-style')) {
         const link = document.createElement('link');
         link.rel = 'stylesheet';
-        link.href = 'public/chap-style.css';
+        link.href = "{{ url_for('public', filename='chap-style.css') }}";
         link.id = 'chap-style';
         document.head.appendChild(link);
     }
