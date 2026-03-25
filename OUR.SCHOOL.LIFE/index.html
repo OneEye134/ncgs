@@ -99,16 +99,26 @@
 }
 
 function renderChapterMarkdown(mdText) {
-    // Fix spacing issues
-    mdText = fixSpacing(mdText);
+    // Create a custom marked renderer
+    const renderer = new marked.Renderer();
 
-    // Convert our [id]# Header syntax to proper {#id} for marked.js
-    mdText = mdText.replace(/^\[(.+?)\](#+)\s*(.+)$/gm, (match, id, hashes, title) => {
-        return `${hashes} ${title} {#${id}}`;
-    });
+    // Override heading rendering
+    renderer.heading = (text, level, raw, slugger) => {
+        // Check if text starts with [id]
+        const match = text.match(/^\[(.+?)\](.*)$/);
+        let id, content;
+        if (match) {
+            id = match[1].trim(); // The ID inside brackets
+            content = match[2].trim(); // The rest of the text
+        } else {
+            id = slugger.slug(text); // fallback slug
+            content = text;
+        }
+        return `<h${level} id="${id}">${content}</h${level}>\n`;
+    };
 
-    // Convert Markdown to HTML
-    return marked.parse(mdText, { headerIds: true });
+    // Render Markdown using our custom renderer
+    return marked.parse(mdText, { renderer });
 }
 
 function loadChapter() {
