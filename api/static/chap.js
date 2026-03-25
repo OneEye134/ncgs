@@ -106,7 +106,7 @@ const contentDiv = document.getElementById('chapter-content');
 // Show loading message
 contentDiv.innerHTML = '<h1>Loading Secret Chapter...</h1>';
 
-const secretChapterFile = `OUR.SCHOOL.LIFE/S${n}chap.html`;
+const secretChapterFile = `/static/OUR.SCHOOL.LIFE/S${n}chap.html`;
 
 fetch(secretChapterFile)
     .then(response => {
