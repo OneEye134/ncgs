@@ -40,6 +40,18 @@ h2 {
     margin-top: 10px;
 }
 
+#auth-btn {
+    padding: 12px 24px;
+    font-size: 1em;
+    background-color: #5070ff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 10px;
+}
+
 #read-story-btn:hover, #prev-chap:hover, #next-chap:hover {
     background-color: #444;
 }
