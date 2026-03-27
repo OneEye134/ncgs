@@ -71,3 +71,10 @@ footer {
     color: #aaa;
     font-size: 0.9em;
 }
+
+.header {
+    display: flex;
+    justify-content: space-between; /* pushes title left, button right */
+    align-items: center;            /* vertical alignment */
+    padding: 10px 20px;
+}
