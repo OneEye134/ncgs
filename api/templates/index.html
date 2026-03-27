@@ -11,13 +11,13 @@
 <body>
     <header>
         <h1>No Cap, Good Story 🧢</h1>
-        <button id="auth-btn">Login</button>
+        <button id="auth-btn" onclick="redirectTo('/auth')">Login</button>
     </header>
 
     <section class="story-block">
         <h2>Our School Life</h2>
         <p><em>By Mumud</em></p>
-        <button id="read-story-btn" onclick="redirectToStory()">Read the Story</button>
+        <button id="read-story-btn" onclick="redirectTo('/OUR.SCHOOL.LIFE')">Read the Story</button>
     </section>
 
     <footer>
@@ -26,8 +26,8 @@
     </footer>
 
     <script>
-        function redirectToStory() {
-            window.location.href = "/OUR.SCHOOL.LIFE";
+        function redirectTo(link) {
+            window.location.href = link;
         }
     </script>
 </body>
