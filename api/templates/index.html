@@ -1,34 +1,84 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <link rel="icon" href="https://cdn.glitch.global/a26d5325-9ce6-457d-b855-7e466048ca04/icon.png?v=1741614190129" type="image/png">
-    <meta name="author" content="Mumud">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>No Cap, Good Story</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-    <header class="header">
-        <h1>No Cap, Good Story 🧢</h1>
-        <button id="auth-btn" onclick="redirectTo('/auth')">Login</button>
-    </header>
+{% extends "base.html" %}
 
-    <section class="story-block">
-        <h2>Our School Life</h2>
-        <p><em>By Mumud</em></p>
-        <button id="read-story-btn" onclick="redirectTo('/OUR.SCHOOL.LIFE')">Read the Story</button>
+{% block title %}No Cap, Good Story{% endblock %}
+
+{% block content %}
+    <div id="welcome-banner" style="display:none;"></div>
+
+    <section class="stories-section">
+        <h2>Latest Stories</h2>
+        <div id="stories-list" class="stories-grid">
+            <p class="stories-status">Loading stories...</p>
+        </div>
     </section>
+{% endblock %}
 
-    <footer>
-        <p class="credit">Website made by: <a href="https://chidee.glitch.me">Chidee</a></p>
-        <p class="credit">NCG* ARCHIVES</p>
-    </footer>
+{% block extra_script %}
+<script>
+    // Show a welcome message after signup or login
+    const params = new URLSearchParams(window.location.search);
+    const banner = document.getElementById('welcome-banner');
 
-    <script>
-        function redirectTo(link) {
-            window.location.href = link;
+    if (params.get('signup') === 'true') {
+        banner.textContent = "🎉 Welcome! Your account has been created successfully.";
+        banner.style.display = 'block';
+    } else if (params.get('login') === 'true') {
+        banner.textContent = "👋 Welcome back{% if session.get('username') %}, {{ session['username'] }}{% endif %}!";
+        banner.style.display = 'block';
+    }
+
+    // Load stories from the API
+    async function loadStories() {
+        const listEl = document.getElementById('stories-list');
+        try {
+            const res = await fetch('/api/getstories');
+            if (!res.ok) throw new Error('Failed to fetch stories');
+            const stories = await res.json();
+
+            if (!stories || stories.length === 0) {
+                listEl.innerHTML = '<p class="stories-status">No stories yet.</p>';
+                return;
+            }
+
+            listEl.innerHTML = '';
+            stories.forEach(story => {
+                const writer = story.users || {};
+                const authorName = writer.nickname || writer.username || 'Unknown';
+                const initial = authorName.trim().charAt(0).toUpperCase() || '?';
+                const date = story.created_at
+                    ? new Date(story.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
+                    : '';
+
+                const card = document.createElement('div');
+                card.className = 'story-block';
+                card.innerHTML = `
+                    <div class="story-header">
+                        <div class="story-avatar">${escapeHtml(initial)}</div>
+                        <div>
+                            <h3>${escapeHtml(story.title)}</h3>
+                            <p class="story-meta">By ${escapeHtml(authorName)}${date ? ' &middot; ' + date : ''}</p>
+                        </div>
+                    </div>
+                    <p>${escapeHtml(story.description || '')}</p>
+                    <button class="read-story-btn">Read the Story</button>
+                `;
+                card.querySelector('.read-story-btn').addEventListener('click', () => {
+                    redirectTo('/story/' + story.id);
+                });
+                listEl.appendChild(card);
+            });
+        } catch (err) {
+            listEl.innerHTML = '<p class="stories-status">Couldn\'t load stories right now.</p>';
+            console.error(err);
         }
-    </script>
-</body>
-</html>
+    }
+
+    function escapeHtml(str) {
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+
+    loadStories();
+</script>
+{% endblock %}

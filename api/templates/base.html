@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" href="https://cdn.glitch.global/a26d5325-9ce6-457d-b855-7e466048ca04/icon.png?v=1741614190129" type="image/png">
+    <meta name="author" content="Mumud">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}No Cap, Good Story{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    {% block extra_style %}{% endblock %}
+</head>
+<body>
+    <header class="header">
+        <a href="/" class="site-title">No Cap, Good Story 🧢</a>
+        <div class="header-actions">
+            {% if session.get('username') %}
+                <span class="account-name">Hi, {{ session['username'] }}</span>
+                <button id="auth-btn" onclick="redirectTo('/logout')">Logout</button>
+            {% else %}
+                <button id="auth-btn" onclick="redirectTo('/auth')">Login</button>
+            {% endif %}
+        </div>
+    </header>
+
+    {% block content %}{% endblock %}
+
+    <footer>
+        <p class="credit">Website made by: <a href="https://chidee.glitch.me">Chidee</a></p>
+    </footer>
+
+    <script>
+        function redirectTo(link) {
+            window.location.href = link;
+        }
+    </script>
+    {% block extra_script %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,195 @@
+{% extends "base.html" %}
+
+{% block title %}No Cap, Good Story{% endblock %}
+
+{% block content %}
+<section class="story-page">
+    <div class="story-page-header">
+        <h2 id="story-title">Loading story…</h2>
+        <p id="story-author" class="story-meta"></p>
+        <p id="story-description"></p>
+    </div>
+
+    <div class="chapter-controls">
+        <label for="chapter-select">Select Chapter:</label>
+        <select id="chapter-select" disabled>
+            <option value="">Loading chapters…</option>
+        </select>
+    </div>
+
+    <div id="chapter-content" class="chapter-content">
+        <p class="stories-status">Loading chapters…</p>
+    </div>
+
+    <div class="nav-buttons">
+        <button id="prev-chap" onclick="changeChapter(-1)" disabled>Previous Chapter</button>
+        <button id="next-chap" onclick="changeChapter(1)" disabled>Next Chapter</button>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_script %}
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script>
+    const storyId = {{ story_id | tojson }};
+
+    // Flat, sequential list of every chapter across every season,
+    // e.g. [{season: 1, num: 1}, {season: 1, num: 2}, ..., {season: 2, num: 23}, ...]
+    let chapterList = [];
+    let currentIndex = -1;
+
+    const titleEl = document.getElementById('story-title');
+    const authorEl = document.getElementById('story-author');
+    const descriptionEl = document.getElementById('story-description');
+    const selectEl = document.getElementById('chapter-select');
+    const contentEl = document.getElementById('chapter-content');
+    const prevBtn = document.getElementById('prev-chap');
+    const nextBtn = document.getElementById('next-chap');
+
+    async function loadStoryInfo() {
+        try {
+            const res = await fetch(`/api/getstoryinfo/${encodeURIComponent(storyId)}`);
+            if (!res.ok) throw new Error('Story not found');
+            const info = await res.json();
+
+            const writer = info.users || {};
+            const authorName = writer.nickname || writer.username || 'Unknown';
+
+            titleEl.textContent = info.title || 'Untitled Story';
+            authorEl.textContent = `By ${authorName}`;
+            descriptionEl.textContent = info.description || '';
+            document.title = `${info.title || 'Story'} — No Cap, Good Story`;
+        } catch (err) {
+            titleEl.textContent = 'Story not found';
+            console.error(err);
+        }
+    }
+
+    function applyStoryCss(css) {
+        if (!css) return;
+        let styleTag = document.getElementById('story-custom-css');
+        if (!styleTag) {
+            styleTag = document.createElement('style');
+            styleTag.id = 'story-custom-css';
+            document.head.appendChild(styleTag);
+        }
+        styleTag.textContent = css;
+    }
+
+    function buildChapterList(seasons) {
+        // seasons is e.g. {"1": 22, "2": 2} - chapter numbers run
+        // continuously across seasons in ascending season order.
+        const seasonNumbers = Object.keys(seasons).map(Number).sort((a, b) => a - b);
+
+        let runningTotal = 0;
+        const list = [];
+        for (const season of seasonNumbers) {
+            const count = seasons[season];
+            for (let i = 1; i <= count; i++) {
+                runningTotal += 1;
+                list.push({ season, num: runningTotal });
+            }
+        }
+        return { list, seasonNumbers };
+    }
+
+    function populateSelect(seasons, seasonNumbers) {
+        selectEl.innerHTML = '';
+
+        let globalChapter = 0;
+        for (const season of seasonNumbers) {
+            const group = document.createElement('optgroup');
+            group.label = `Season ${season}`;
+
+            const count = seasons[season];
+            for (let i = 0; i < count; i++) {
+                globalChapter += 1;
+                const option = document.createElement('option');
+                option.value = String(globalChapter - 1); // index into chapterList
+                option.textContent = `Chapter ${globalChapter}`;
+                group.appendChild(option);
+            }
+            selectEl.appendChild(group);
+        }
+
+        selectEl.disabled = false;
+    }
+
+    async function loadStoryChapters() {
+        try {
+            const res = await fetch(`/api/getstory/${encodeURIComponent(storyId)}`);
+            if (!res.ok) throw new Error('Failed to fetch chapter list');
+            const data = await res.json();
+
+            applyStoryCss(data.css);
+
+            const { list, seasonNumbers } = buildChapterList(data.seasons || {});
+            chapterList = list;
+
+            if (chapterList.length === 0) {
+                contentEl.innerHTML = '<p class="stories-status">No chapters have been posted yet.</p>';
+                selectEl.innerHTML = '<option value="">No chapters available</option>';
+                return;
+            }
+
+            populateSelect(data.seasons, seasonNumbers);
+            selectEl.addEventListener('change', () => {
+                const idx = parseInt(selectEl.value, 10);
+                if (!Number.isNaN(idx)) loadChapterByIndex(idx);
+            });
+
+            loadChapterByIndex(0);
+        } catch (err) {
+            contentEl.innerHTML = '<p class="stories-status">Couldn\'t load this story right now.</p>';
+            console.error(err);
+        }
+    }
+
+    async function loadChapterByIndex(index) {
+        if (index < 0 || index >= chapterList.length) return;
+
+        currentIndex = index;
+        const { season, num } = chapterList[index];
+
+        selectEl.disabled = true;
+        prevBtn.disabled = true;
+        nextBtn.disabled = true;
+        contentEl.innerHTML = '<p class="stories-status">Loading chapter…</p>';
+
+        try {
+            const res = await fetch(`/api/getchapter/${encodeURIComponent(storyId)}/${season}/${num}`);
+            if (!res.ok) throw new Error('Chapter not found');
+            const data = await res.json();
+
+            contentEl.innerHTML = marked.parse(stripChapterTag(data.content));
+        } catch (err) {
+            contentEl.innerHTML = '<p class="stories-status">Couldn\'t load this chapter right now.</p>';
+            console.error(err);
+        } finally {
+            selectEl.value = String(index);
+            selectEl.disabled = false;
+            prevBtn.disabled = currentIndex <= 0;
+            nextBtn.disabled = currentIndex >= chapterList.length - 1;
+        }
+    }
+
+    // Every section/heading in a chapter file is prefixed with a custom tag
+    // like "[phase-1-the-horror-begins]## Phase 1: The Horror Begins" - one
+    // per heading, scattered through the whole document, not just at the
+    // top of the file. A "#" only becomes a heading when it's at the very
+    // start of a line, so every one of these tags has to be stripped off
+    // the front of its line before handing the text to marked.
+    function stripChapterTag(rawContent) {
+        if (!rawContent) return '';
+        return rawContent.replace(/^\s*\[[^\]]*\]\s*/gm, '');
+    }
+
+    function changeChapter(direction) {
+        const nextIndex = currentIndex + direction;
+        loadChapterByIndex(nextIndex);
+    }
+
+    loadStoryInfo();
+    loadStoryChapters();
+</script>
+{% endblock %}
