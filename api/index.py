@@ -1,7 +1,7 @@
 import re
 
 from flask import Flask, render_template, request, redirect, session, jsonify
-from supabase_client import supabase
+from api.supabase_client import supabase
 
 app = Flask(__name__)
 app.secret_key = "5e9c1ba28a23064b4efe77ce9e7b7ae232739ebee96de578c347eb4fba2ac772"
