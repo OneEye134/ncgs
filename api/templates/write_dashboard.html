@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}Write - No Cap, Good Story{% endblock %}
+
+{% block content %}
+    <section class="stories-section">
+        <h2>Your Stories</h2>
+        <div id="my-stories-list" class="stories-grid">
+            <p class="stories-status">Loading your stories...</p>
+        </div>
+    </section>
+
+    <section class="auth-block" id="new-story-block">
+        <h2>Start a New Story</h2>
+        <div id="new-story-error" class="red" style="display:none;"></div>
+        <form id="new-story-form">
+            <input type="text" id="new-story-title" placeholder="Story Title" required><br>
+            <input type="text" id="new-story-description" placeholder="Short Description"><br>
+            <button type="submit">Create Story</button>
+        </form>
+    </section>
+{% endblock %}
+
+{% block extra_script %}
+<script>
+    async function loadMyStories() {
+        const listEl = document.getElementById('my-stories-list');
+        try {
+            const res = await fetch('/api/mystories');
+            if (!res.ok) throw new Error('Failed to fetch your stories');
+            const stories = await res.json();
+
+            if (!stories || stories.length === 0) {
+                listEl.innerHTML = '<p class="stories-status">You haven\'t started a story yet. Create one below!</p>';
+                return;
+            }
+
+            listEl.innerHTML = '';
+            stories.forEach(story => {
+                const date = story.edited_at || story.created_at;
+                const dateLabel = date
+                    ? new Date(date).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
+                    : '';
+
+                const card = document.createElement('div');
+                card.className = 'story-block';
+                card.innerHTML = `
+                    <h3>${escapeHtml(story.title)}</h3>
+                    <p class="story-meta">${dateLabel ? 'Last edited ' + dateLabel : ''}</p>
+                    <p>${escapeHtml(story.description || '')}</p>
+                    <button class="read-story-btn">Edit Story</button>
+                `;
+                card.querySelector('.read-story-btn').addEventListener('click', () => {
+                    redirectTo('/write/' + story.id);
+                });
+                listEl.appendChild(card);
+            });
+        } catch (err) {
+            listEl.innerHTML = '<p class="stories-status">Couldn\'t load your stories right now.</p>';
+            console.error(err);
+        }
+    }
+
+    function escapeHtml(str) {
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+
+    document.getElementById('new-story-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const errorEl = document.getElementById('new-story-error');
+        errorEl.style.display = 'none';
+
+        const title = document.getElementById('new-story-title').value.trim();
+        const description = document.getElementById('new-story-description').value.trim();
+
+        try {
+            const res = await fetch('/api/createstory', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title, description })
+            });
+            const data = await res.json();
+
+            if (!res.ok) {
+                errorEl.textContent = data.error || 'Could not create story';
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            redirectTo('/write/' + data.id);
+        } catch (err) {
+            errorEl.textContent = 'Could not create story right now';
+            errorEl.style.display = 'block';
+            console.error(err);
+        }
+    });
+
+    loadMyStories();
+</script>
+{% endblock %}

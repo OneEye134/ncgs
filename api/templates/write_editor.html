@@ -1,0 +1,475 @@
+{% extends "base.html" %}
+
+{% block title %}Editing Story - No Cap, Good Story{% endblock %}
+
+{% block extra_style %}
+<link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css">
+<style>
+    .write-page { max-width: 900px; margin: 0 auto; }
+    .write-block { background:#fff; border:1px solid #e6e6e6; border-radius:14px; padding:22px 24px; margin-bottom:24px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+    .write-block h3 { margin-top:0; }
+    .write-row { display:flex; gap:16px; flex-wrap:wrap; align-items:flex-end; margin-bottom:16px; }
+    .write-field { flex: 1 1 160px; }
+    .write-field label { display:block; font-size:0.85em; color:#666; margin-bottom:4px; }
+    .write-field input, .write-field select, .write-field textarea {
+        width: 100%; padding:8px 10px; font-size:1em; border-radius:5px; border:1px solid #ccc; font-family: inherit;
+    }
+    .write-field textarea { box-sizing:border-box; }
+    #chapter-editor { margin-bottom:16px; }
+    #css-editor { width:100%; height:220px; font-family: monospace; font-size:0.9em; box-sizing: border-box; }
+    .save-btn { padding:10px 22px; font-size:1em; border:none; border-radius:5px; background-color:#5070ff; color:#fff; cursor:pointer; }
+    .save-btn:hover { background-color:#3d5ce0; }
+    .status-msg { margin-left:12px; font-size:0.9em; }
+    .status-msg.ok { color:#2e7d32; }
+    .status-msg.error { color:red; }
+    .hint { color:#888; font-size:0.85em; margin-top:8px; }
+
+    .danger-zone { border-color:#f3caca; }
+    .delete-warning { color:#c62828; font-weight:600; }
+    .delete-btn { padding:10px 22px; font-size:1em; border:none; border-radius:5px; background-color:#c62828; color:#fff; cursor:pointer; }
+    .delete-btn:hover:not(:disabled) { background-color:#a51f1f; }
+    .delete-btn:disabled { background-color:#e2a3a3; cursor:not-allowed; }
+    .delete-confirm { margin-top:14px; }
+
+    @media (max-width: 640px) {
+        .write-block { padding:16px 16px; border-radius:10px; }
+        .write-row { gap:12px; }
+        .write-field { flex-basis: 100%; }
+        #season-input, #num-input { width: 100% !important; }
+        .save-btn { width: 100%; margin-bottom: 8px; }
+        .status-msg { display: block; margin-left: 0; margin-top: 6px; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="write-page">
+    <div class="write-block">
+        <h3>Story Details</h3>
+        <div class="write-row">
+            <div class="write-field" style="flex:1;">
+                <label for="story-title-input">Title</label>
+                <input type="text" id="story-title-input" style="width:100%;">
+            </div>
+        </div>
+        <div class="write-row">
+            <div class="write-field" style="flex:1;">
+                <label for="story-description-input">Description</label>
+                <textarea id="story-description-input" rows="2"></textarea>
+            </div>
+        </div>
+        <button class="save-btn" id="save-info-btn">Save Story Details</button>
+        <span id="info-status" class="status-msg"></span>
+    </div>
+
+    <div class="write-block">
+        <h3>Chapters</h3>
+        <div class="write-row">
+            <div class="write-field">
+                <label for="chapter-select">Chapter</label>
+                <select id="chapter-select">
+                    <option value="new">+ New Chapter</option>
+                </select>
+            </div>
+            <div class="write-field">
+                <label for="season-input">Season</label>
+                <input type="number" id="season-input" min="1" step="1" value="1" style="width:80px;">
+            </div>
+            <div class="write-field">
+                <label for="num-input">Chapter #</label>
+                <input type="number" id="num-input" min="1" step="1" value="1" style="width:80px;">
+            </div>
+        </div>
+        <p class="hint">Changing the season/chapter number saves to a new chapter file instead of overwriting the one you loaded.</p>
+        <p class="hint">Headings (# / ## / etc.) get their [id] tag added automatically — you don't need to type it yourself, in either editing mode.</p>
+
+        <div id="chapter-editor"></div>
+
+        <button class="save-btn" id="save-chapter-btn">Save Chapter</button>
+        <span id="chapter-status" class="status-msg"></span>
+    </div>
+
+    <div class="write-block">
+        <h3>Story Style</h3>
+        <p class="hint">Paste your own CSS for this story's chapter pages, or keep the default styling below.</p>
+        <textarea id="css-editor"></textarea>
+        <br><br>
+        <button class="save-btn" id="save-css-btn">Save Style</button>
+        <button class="save-btn" id="reset-css-btn" style="background-color:#888;">Reset to Default</button>
+        <span id="css-status" class="status-msg"></span>
+    </div>
+
+    <div class="write-block danger-zone">
+        <h3>Danger Zone</h3>
+        <p class="hint">Deleting a story permanently removes it, every chapter, and every comment on it. This cannot be undone.</p>
+
+        <button class="delete-btn" id="delete-story-btn">Delete This Story</button>
+
+        <div id="delete-confirm-1" class="delete-confirm" style="display:none;">
+            <p class="delete-warning">This will permanently delete this story, all of its chapters, and all of its comments. This cannot be undone.</p>
+            <button class="delete-btn" id="delete-confirm-1-btn" disabled>Wait 5s…</button>
+            <button class="save-btn" id="delete-cancel-1-btn" style="background-color:#888;">Cancel</button>
+        </div>
+
+        <div id="delete-confirm-2" class="delete-confirm" style="display:none;">
+            <p class="delete-warning">Last chance — are you absolutely sure? There is no way to undo this.</p>
+            <button class="delete-btn" id="delete-confirm-2-btn" disabled>Wait 5s…</button>
+            <button class="save-btn" id="delete-cancel-2-btn" style="background-color:#888;">Cancel</button>
+        </div>
+
+        <span id="delete-status" class="status-msg"></span>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_script %}
+<script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
+<script>
+    const storyId = {{ story_id | tojson }};
+
+    const chapterSelect = document.getElementById('chapter-select');
+    const seasonInput = document.getElementById('season-input');
+    const numInput = document.getElementById('num-input');
+    const chapterStatus = document.getElementById('chapter-status');
+    const infoStatus = document.getElementById('info-status');
+    const cssStatus = document.getElementById('css-status');
+
+    let seasonsData = {}; // { "1": 22, "2": 2 } from /api/getstory
+
+    const editor = new toastui.Editor({
+        el: document.querySelector('#chapter-editor'),
+        height: '450px',
+        initialEditType: 'wysiwyg',
+        previewStyle: 'vertical',
+        initialValue: ''
+    });
+
+    // The site stores a "[slug]" tag in front of every heading line
+    // (see stripChapterTag in story.html). Writers shouldn't see or
+    // manage those tags directly, so we strip them before loading
+    // content into the editor - the server re-derives them on save.
+    function stripHeadingTags(rawContent) {
+        if (!rawContent) return '';
+        return rawContent.replace(/^\s*\[[^\]]*\]\s*/gm, '');
+    }
+
+    function showStatus(el, message, ok) {
+        el.textContent = message;
+        el.className = 'status-msg ' + (ok ? 'ok' : 'error');
+        if (ok) setTimeout(() => { el.textContent = ''; }, 2500);
+    }
+
+    async function loadStoryInfo() {
+        try {
+            const res = await fetch(`/api/getstoryinfo/${encodeURIComponent(storyId)}`);
+            if (!res.ok) throw new Error('Could not load story info');
+            const info = await res.json();
+            document.getElementById('story-title-input').value = info.title || '';
+            document.getElementById('story-description-input').value = info.description || '';
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    function populateChapterSelect() {
+        chapterSelect.innerHTML = '<option value="new">+ New Chapter</option>';
+
+        const seasonNumbers = Object.keys(seasonsData).map(Number).sort((a, b) => a - b);
+        seasonNumbers.forEach(season => {
+            const count = seasonsData[season];
+            for (let i = 1; i <= count; i++) {
+                const option = document.createElement('option');
+                option.value = `${season}:${i}`;
+                option.textContent = `Season ${season} - Chapter ${i}`;
+                chapterSelect.appendChild(option);
+            }
+        });
+    }
+
+    function suggestNextChapter() {
+        const seasonNumbers = Object.keys(seasonsData).map(Number);
+        const currentMaxSeason = seasonNumbers.length ? Math.max(...seasonNumbers) : 1;
+        const nextNum = (seasonsData[currentMaxSeason] || 0) + 1;
+        seasonInput.value = currentMaxSeason;
+        numInput.value = nextNum;
+        editor.setMarkdown('');
+    }
+
+    async function loadChapterList() {
+        try {
+            const res = await fetch(`/api/getstory/${encodeURIComponent(storyId)}`);
+            if (!res.ok) throw new Error('Could not load chapters');
+            const data = await res.json();
+            seasonsData = data.seasons || {};
+            populateChapterSelect();
+
+            if (Object.keys(seasonsData).length === 0) {
+                suggestNextChapter();
+            } else {
+                suggestNextChapter();
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    async function loadChapter(season, num) {
+        seasonInput.value = season;
+        numInput.value = num;
+        editor.setMarkdown('Loading…');
+        try {
+            const res = await fetch(`/api/getchapter/${encodeURIComponent(storyId)}/${season}/${num}`);
+            if (!res.ok) throw new Error('Chapter not found');
+            const data = await res.json();
+            editor.setMarkdown(stripHeadingTags(data.content));
+        } catch (err) {
+            editor.setMarkdown('');
+            console.error(err);
+        }
+    }
+
+    chapterSelect.addEventListener('change', () => {
+        if (chapterSelect.value === 'new') {
+            suggestNextChapter();
+            return;
+        }
+        const [season, num] = chapterSelect.value.split(':');
+        loadChapter(season, num);
+    });
+
+    document.getElementById('save-info-btn').addEventListener('click', async () => {
+        const title = document.getElementById('story-title-input').value.trim();
+        const description = document.getElementById('story-description-input').value.trim();
+
+        try {
+            const res = await fetch(`/api/updatestoryinfo/${encodeURIComponent(storyId)}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title, description })
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Could not save');
+            showStatus(infoStatus, 'Saved!', true);
+        } catch (err) {
+            showStatus(infoStatus, err.message, false);
+        }
+    });
+
+    document.getElementById('save-chapter-btn').addEventListener('click', async () => {
+        const season = parseInt(seasonInput.value, 10);
+        const num = parseInt(numInput.value, 10);
+        const content = editor.getMarkdown();
+
+        if (!season || !num || season < 1 || num < 1) {
+            showStatus(chapterStatus, 'Season and chapter # must be positive numbers', false);
+            return;
+        }
+
+        try {
+            const res = await fetch(`/api/savechapter/${encodeURIComponent(storyId)}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ season, num, content })
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Could not save chapter');
+            showStatus(chapterStatus, 'Chapter saved!', true);
+            await loadChapterList();
+            chapterSelect.value = `${season}:${num}`;
+        } catch (err) {
+            showStatus(chapterStatus, err.message, false);
+        }
+    });
+
+    // --- Story style ---
+    let defaultCss = '';
+
+    // Writers author CSS for the reader page (story.html), which can be
+    // scoped to ".chapter-content" or written as bare "body { }" / "h1 { }"
+    // rules meant to skin the whole page. Neither form reaches into the
+    // editor as-is: Toast UI's own editable/preview area lives under its
+    // own class (".toastui-editor-contents"), and its built-in stylesheet
+    // already has rules like ".toastui-editor-contents h1" - a bare "h1 {}"
+    // has lower specificity than that and silently loses no matter what
+    // order the stylesheets load in. So this doesn't just swap a class
+    // name; it rewrites every selector in the pasted CSS to be scoped
+    // under ".toastui-editor-contents" (bare body/html map straight onto
+    // it, everything else gets it prepended as an ancestor), which matches
+    // or beats Toast's own specificity for any selector shape. The
+    // textarea (and what actually gets saved to chap-style.css) is never
+    // touched - this only affects the live in-editor preview copy.
+    function scopeCssForEditor(css) {
+        const SCOPE = '.toastui-editor-contents';
+
+        function rewriteSelectorList(selText) {
+            return selText
+                .split(',')
+                .map((sel) => {
+                    sel = sel.trim();
+                    if (!sel) return sel;
+                    if (/^(body|html|:root)$/i.test(sel)) return SCOPE;
+                    if (/^\.chapter-content\b/.test(sel)) {
+                        return sel.replace(/^\.chapter-content\b/, SCOPE);
+                    }
+                    return `${SCOPE} ${sel}`;
+                })
+                .join(', ');
+        }
+
+        // Minimal brace-depth walker: rewrites selectors on plain rules,
+        // and recurses into the body of at-rules (e.g. @media) so their
+        // nested selectors get scoped too, while leaving the at-rule
+        // header itself untouched.
+        let out = '';
+        let i = 0;
+        const n = css.length;
+        while (i < n) {
+            if (css[i] === '@') {
+                const braceIdx = css.indexOf('{', i);
+                if (braceIdx === -1) { out += css.slice(i); break; }
+                out += css.slice(i, braceIdx + 1);
+                let depth = 1, j = braceIdx + 1;
+                while (j < n && depth > 0) {
+                    if (css[j] === '{') depth++;
+                    else if (css[j] === '}') depth--;
+                    j++;
+                }
+                out += scopeCssForEditor(css.slice(braceIdx + 1, j - 1)) + '}';
+                i = j;
+                continue;
+            }
+            const braceIdx = css.indexOf('{', i);
+            if (braceIdx === -1) { out += css.slice(i); break; }
+            const selText = css.slice(i, braceIdx);
+            if (!selText.trim()) { out += css.slice(i, braceIdx + 1); i = braceIdx + 1; continue; }
+            let depth = 1, j = braceIdx + 1;
+            while (j < n && depth > 0) {
+                if (css[j] === '{') depth++;
+                else if (css[j] === '}') depth--;
+                j++;
+            }
+            out += rewriteSelectorList(selText) + ' {' + css.slice(braceIdx + 1, j - 1) + '}';
+            i = j;
+        }
+        return out;
+    }
+
+    function applyEditorCss(css) {
+        let styleTag = document.getElementById('editor-preview-css');
+        if (!styleTag) {
+            styleTag = document.createElement('style');
+            styleTag.id = 'editor-preview-css';
+            document.head.appendChild(styleTag);
+        }
+        styleTag.textContent = scopeCssForEditor(css || '');
+    }
+
+    async function loadStyle() {
+        try {
+            const [currentRes, defaultRes] = await Promise.all([
+                fetch(`/api/getstyle/${encodeURIComponent(storyId)}`),
+                fetch(`/api/getstyle/${encodeURIComponent(storyId)}?default=1`)
+            ]);
+            const current = await currentRes.json();
+            const def = await defaultRes.json();
+            document.getElementById('css-editor').value = current.css || '';
+            defaultCss = def.css || '';
+            applyEditorCss(current.css || '');
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    document.getElementById('save-css-btn').addEventListener('click', async () => {
+        const css = document.getElementById('css-editor').value;
+        try {
+            const res = await fetch(`/api/savestyle/${encodeURIComponent(storyId)}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ css })
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Could not save style');
+            showStatus(cssStatus, 'Style saved!', true);
+            applyEditorCss(css);
+        } catch (err) {
+            showStatus(cssStatus, err.message, false);
+        }
+    });
+
+    document.getElementById('reset-css-btn').addEventListener('click', () => {
+        document.getElementById('css-editor').value = defaultCss;
+        applyEditorCss(defaultCss);
+    });
+
+    // --- Delete story (two-step confirmation, 5s wait each step) ---
+    const deleteStoryBtn = document.getElementById('delete-story-btn');
+    const deleteConfirm1 = document.getElementById('delete-confirm-1');
+    const deleteConfirm2 = document.getElementById('delete-confirm-2');
+    const deleteConfirm1Btn = document.getElementById('delete-confirm-1-btn');
+    const deleteConfirm2Btn = document.getElementById('delete-confirm-2-btn');
+    const deleteCancel1Btn = document.getElementById('delete-cancel-1-btn');
+    const deleteCancel2Btn = document.getElementById('delete-cancel-2-btn');
+    const deleteStatus = document.getElementById('delete-status');
+
+    function startCountdown(button, seconds, doneLabel) {
+        let remaining = seconds;
+        button.disabled = true;
+        button.textContent = `Wait ${remaining}s…`;
+        const interval = setInterval(() => {
+            remaining -= 1;
+            if (remaining <= 0) {
+                clearInterval(interval);
+                button.disabled = false;
+                button.textContent = doneLabel;
+            } else {
+                button.textContent = `Wait ${remaining}s…`;
+            }
+        }, 1000);
+    }
+
+    function resetDeleteFlow() {
+        deleteStoryBtn.style.display = 'inline-block';
+        deleteConfirm1.style.display = 'none';
+        deleteConfirm2.style.display = 'none';
+        deleteStatus.textContent = '';
+    }
+
+    deleteStoryBtn.addEventListener('click', () => {
+        deleteStoryBtn.style.display = 'none';
+        deleteConfirm1.style.display = 'block';
+        startCountdown(deleteConfirm1Btn, 5, 'Yes, delete this story');
+    });
+
+    deleteCancel1Btn.addEventListener('click', resetDeleteFlow);
+
+    deleteConfirm1Btn.addEventListener('click', () => {
+        deleteConfirm1.style.display = 'none';
+        deleteConfirm2.style.display = 'block';
+        startCountdown(deleteConfirm2Btn, 5, 'Permanently delete this story');
+    });
+
+    deleteCancel2Btn.addEventListener('click', resetDeleteFlow);
+
+    deleteConfirm2Btn.addEventListener('click', async () => {
+        deleteConfirm2Btn.disabled = true;
+        deleteStatus.textContent = '';
+
+        try {
+            const res = await fetch(`/api/deletestory/${encodeURIComponent(storyId)}`, {
+                method: 'POST'
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Could not delete story');
+            redirectTo('/write');
+        } catch (err) {
+            showStatus(deleteStatus, err.message, false);
+            deleteConfirm2Btn.disabled = false;
+        }
+    });
+
+    loadStoryInfo();
+    loadChapterList();
+    loadStyle();
+</script>
+{% endblock %}

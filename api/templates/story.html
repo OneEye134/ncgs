@@ -25,6 +25,20 @@
         <button id="prev-chap" onclick="changeChapter(-1)" disabled>Previous Chapter</button>
         <button id="next-chap" onclick="changeChapter(1)" disabled>Next Chapter</button>
     </div>
+
+    <section class="comments-section" id="comments-section">
+        <div class="comments-header">
+            <h3 class="comments-heading" id="comments-heading">Chapter Discussion</h3>
+            <div class="comment-mode-toggle" role="tablist">
+                <button type="button" id="mode-chapter-btn" class="comment-mode-btn active" onclick="setCommentMode('chapter')">This Chapter</button>
+                <button type="button" id="mode-story-btn" class="comment-mode-btn" onclick="setCommentMode('story')">Whole Story</button>
+            </div>
+        </div>
+        <div id="comments-list" class="comments-list">
+            <p class="stories-status">Loading comments…</p>
+        </div>
+        <div id="comments-form-slot"></div>
+    </section>
 </section>
 {% endblock %}
 
@@ -32,6 +46,8 @@
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script>
     const storyId = {{ story_id | tojson }};
+    const isLoggedIn = {{ (session.get('username') is not none) | tojson }};
+    const currentUserId = {{ session.get('user_id') | tojson }};
 
     // Flat, sequential list of every chapter across every season,
     // e.g. [{season: 1, num: 1}, {season: 1, num: 2}, ..., {season: 2, num: 23}, ...]
@@ -65,6 +81,190 @@
         }
     }
 
+    // --- Auto dark mode for story-authored CSS ---
+    //
+    // Writers paste arbitrary CSS for their story's chapter pages (colors,
+    // fonts, etc.), so we can't know ahead of time what a "dark" version
+    // should look like. Instead we generate one automatically: every color
+    // in the writer's CSS gets its lightness inverted (light backgrounds
+    // become dark, dark text becomes light, hue/saturation are preserved),
+    // and every rule is duplicated under an `html[data-theme="dark"]`
+    // ancestor selector with higher specificity than the original. Both
+    // the original and the generated dark rules live in the page at the
+    // same time - toggling data-theme on <html> (see base.html) is what
+    // switches which set actually applies, so this needs no re-fetch and
+    // updates instantly when the reader flips the theme toggle.
+    const NAMED_COLORS = [
+        'black', 'white', 'red', 'green', 'blue', 'yellow', 'orange', 'purple', 'pink',
+        'brown', 'cyan', 'magenta', 'gray', 'grey', 'silver', 'gold', 'navy', 'teal',
+        'maroon', 'olive', 'lime', 'aqua', 'fuchsia', 'crimson', 'coral', 'salmon',
+        'khaki', 'violet', 'indigo', 'beige', 'ivory', 'tan', 'plum', 'orchid',
+        'chocolate', 'tomato', 'turquoise', 'skyblue', 'slategray', 'slategrey',
+        'lightgray', 'lightgrey', 'darkgray', 'darkgrey', 'lightblue', 'darkblue',
+        'lightgreen', 'darkgreen', 'lightyellow', 'lightpink', 'steelblue', 'firebrick'
+    ];
+    const COLOR_TOKEN_RE = new RegExp(
+        '#[0-9a-fA-F]{3,8}\\b|rgba?\\([^)]*\\)|hsla?\\([^)]*\\)|\\b(?:' + NAMED_COLORS.join('|') + ')\\b',
+        'gi'
+    );
+
+    let colorProbeEl = null;
+    function resolveToRgba(token) {
+        if (!colorProbeEl) {
+            colorProbeEl = document.createElement('span');
+            colorProbeEl.style.display = 'none';
+            document.body.appendChild(colorProbeEl);
+        }
+        colorProbeEl.style.color = '';
+        colorProbeEl.style.color = token;
+        if (!colorProbeEl.style.color) return null; // unrecognized value
+        const computed = getComputedStyle(colorProbeEl).color;
+        const m = computed.match(/rgba?\(([^)]+)\)/i);
+        if (!m) return null;
+        const parts = m[1].split(',').map((s) => parseFloat(s.trim()));
+        return { r: parts[0], g: parts[1], b: parts[2], a: parts.length > 3 ? parts[3] : 1 };
+    }
+
+    function rgbToHsl(r, g, b) {
+        r /= 255; g /= 255; b /= 255;
+        const max = Math.max(r, g, b), min = Math.min(r, g, b);
+        let h = 0, s = 0;
+        const l = (max + min) / 2;
+        if (max !== min) {
+            const d = max - min;
+            s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+            switch (max) {
+                case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                case g: h = (b - r) / d + 2; break;
+                default: h = (r - g) / d + 4; break;
+            }
+            h /= 6;
+        }
+        return { h: h * 360, s: s * 100, l: l * 100 };
+    }
+
+    function hslToRgb(h, s, l) {
+        h /= 360; s /= 100; l /= 100;
+        let r, g, b;
+        if (s === 0) {
+            r = g = b = l;
+        } else {
+            const hue2rgb = (p, q, t) => {
+                if (t < 0) t += 1;
+                if (t > 1) t -= 1;
+                if (t < 1 / 6) return p + (q - p) * 6 * t;
+                if (t < 1 / 2) return q;
+                if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+                return p;
+            };
+            const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+            const p = 2 * l - q;
+            r = hue2rgb(p, q, h + 1 / 3);
+            g = hue2rgb(p, q, h);
+            b = hue2rgb(p, q, h - 1 / 3);
+        }
+        return { r: Math.round(r * 255), g: Math.round(g * 255), b: Math.round(b * 255) };
+    }
+
+    function invertLightness(l) {
+        // Flip around the midpoint but keep a floor/ceiling so nothing
+        // becomes pure white-on-white or pure black-on-black.
+        return Math.min(92, Math.max(8, 100 - l));
+    }
+
+    function darkenColorToken(token) {
+        if (/^(transparent|currentcolor|inherit|initial|unset)$/i.test(token)) return token;
+        const rgba = resolveToRgba(token);
+        if (!rgba) return token;
+        const hsl = rgbToHsl(rgba.r, rgba.g, rgba.b);
+        const newL = invertLightness(hsl.l);
+        const newRgb = hslToRgb(hsl.h, hsl.s, newL);
+        return rgba.a < 1
+            ? `rgba(${newRgb.r}, ${newRgb.g}, ${newRgb.b}, ${rgba.a})`
+            : `rgb(${newRgb.r}, ${newRgb.g}, ${newRgb.b})`;
+    }
+
+    function rewriteSelectorForDark(selText) {
+        return selText
+            .split(',')
+            .map((sel) => {
+                sel = sel.trim();
+                if (!sel) return sel;
+                if (/^(html|body|:root)$/i.test(sel)) return 'html[data-theme="dark"]';
+                return `html[data-theme="dark"] ${sel}`;
+            })
+            .join(', ');
+    }
+
+    function buildDarkModeCss(css) {
+        function walk(cssText) {
+            let out = '';
+            let i = 0;
+            const n = cssText.length;
+            while (i < n) {
+                // Preserve (but skip past) whitespace between rules so the
+                // '@' check below isn't fooled by a leading newline/indent.
+                if (/\s/.test(cssText[i])) {
+                    let k = i;
+                    while (k < n && /\s/.test(cssText[k])) k++;
+                    out += cssText.slice(i, k);
+                    i = k;
+                    continue;
+                }
+                if (cssText[i] === '@') {
+                    const braceIdx = cssText.indexOf('{', i);
+                    const semiIdx = cssText.indexOf(';', i);
+                    if (braceIdx === -1 || (semiIdx !== -1 && semiIdx < braceIdx)) {
+                        i = (semiIdx === -1 ? n : semiIdx + 1);
+                        continue;
+                    }
+                    const prelude = cssText.slice(i, braceIdx).trim();
+                    let depth = 1, j = braceIdx + 1;
+                    while (j < n && depth > 0) {
+                        if (cssText[j] === '{') depth++;
+                        else if (cssText[j] === '}') depth--;
+                        j++;
+                    }
+                    const body = cssText.slice(braceIdx + 1, j - 1);
+                    const nameMatch = prelude.match(/^@(?:-\w+-)?([\w-]+)/i);
+                    const atName = nameMatch ? nameMatch[1].toLowerCase() : '';
+                    if (atName === 'media' || atName === 'supports') {
+                        out += prelude + ' {' + walk(body) + '}';
+                    }
+                    // @keyframes / @font-face / @page / @import etc. aren't
+                    // meaningfully "themeable" per-selector, so they're left
+                    // out of the generated dark copy (the original still
+                    // applies as-is in both themes).
+                    i = j;
+                    continue;
+                }
+                const braceIdx = cssText.indexOf('{', i);
+                if (braceIdx === -1) break;
+                const selText = cssText.slice(i, braceIdx);
+                if (!selText.trim()) { i = braceIdx + 1; continue; }
+                let depth = 1, j = braceIdx + 1;
+                while (j < n && depth > 0) {
+                    if (cssText[j] === '{') depth++;
+                    else if (cssText[j] === '}') depth--;
+                    j++;
+                }
+                const decl = cssText.slice(braceIdx + 1, j - 1);
+                const transformed = decl.replace(COLOR_TOKEN_RE, (match) => darkenColorToken(match));
+                out += rewriteSelectorForDark(selText) + ' {' + transformed + '}';
+                i = j;
+            }
+            return out;
+        }
+
+        try {
+            const withoutComments = (css || '').replace(/\/\*[\s\S]*?\*\//g, '');
+            return walk(withoutComments);
+        } catch (err) {
+            console.error('Could not generate dark mode variant of story CSS', err);
+            return '';
+        }
+    }
+
     function applyStoryCss(css) {
         if (!css) return;
         let styleTag = document.getElementById('story-custom-css');
@@ -73,7 +273,8 @@
             styleTag.id = 'story-custom-css';
             document.head.appendChild(styleTag);
         }
-        styleTag.textContent = css;
+        const darkVariant = buildDarkModeCss(css);
+        styleTag.textContent = css + '\n\n/* Auto-generated dark mode overrides */\n' + darkVariant;
     }
 
     function buildChapterList(seasons) {
@@ -162,6 +363,8 @@
             const data = await res.json();
 
             contentEl.innerHTML = marked.parse(stripChapterTag(data.content));
+            currentChapterGlobalNum = index + 1; // matches the "Chapter N" label
+            if (commentMode === 'chapter') refreshComments();
         } catch (err) {
             contentEl.innerHTML = '<p class="stories-status">Couldn\'t load this chapter right now.</p>';
             console.error(err);
@@ -187,6 +390,212 @@
     function changeChapter(direction) {
         const nextIndex = currentIndex + direction;
         loadChapterByIndex(nextIndex);
+    }
+
+    // ----- Comments -----
+
+    let commentMode = 'chapter'; // 'chapter' or 'story'
+    let currentChapterGlobalNum = null;
+
+    const commentsListEl = document.getElementById('comments-list');
+    const commentsFormSlotEl = document.getElementById('comments-form-slot');
+    const commentsHeadingEl = document.getElementById('comments-heading');
+    const modeChapterBtn = document.getElementById('mode-chapter-btn');
+    const modeStoryBtn = document.getElementById('mode-story-btn');
+
+    const DEFAULT_AVATAR =
+        'data:image/svg+xml;utf8,' + encodeURIComponent(
+            '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40">' +
+            '<circle cx="20" cy="20" r="20" fill="%23ccc"/>' +
+            '<circle cx="20" cy="16" r="7" fill="%23fff"/>' +
+            '<path d="M6 36c0-9 6-14 14-14s14 5 14 14" fill="%23fff"/>' +
+            '</svg>'
+        );
+
+    function timeAgo(isoString) {
+        const then = new Date(isoString).getTime();
+        const seconds = Math.max(0, Math.floor((Date.now() - then) / 1000));
+        const units = [
+            ['year', 31536000], ['month', 2592000], ['week', 604800],
+            ['day', 86400], ['hour', 3600], ['minute', 60]
+        ];
+        for (const [label, secs] of units) {
+            const count = Math.floor(seconds / secs);
+            if (count >= 1) return `${count} ${label}${count > 1 ? 's' : ''} ago`;
+        }
+        return 'just now';
+    }
+
+    function buildAvatar(writer) {
+        const img = document.createElement('img');
+        img.className = 'comment-avatar';
+        img.alt = '';
+        img.src = writer.avatar_url || DEFAULT_AVATAR;
+        // Falls back if avatar_url is set but broken/unreachable
+        img.addEventListener('error', () => {
+            img.src = DEFAULT_AVATAR;
+        }, { once: true });
+        return img;
+    }
+
+    function renderComments(comments, onDeleted) {
+        commentsListEl.innerHTML = '';
+
+        if (!comments || comments.length === 0) {
+            const empty = document.createElement('p');
+            empty.className = 'stories-status';
+            empty.textContent = 'No comments yet. Be the first to say something!';
+            commentsListEl.appendChild(empty);
+            return;
+        }
+
+        for (const comment of comments) {
+            const writer = comment.users || {};
+            const authorName = writer.nickname || writer.username || 'Unknown';
+
+            const item = document.createElement('div');
+            item.className = 'comment-item';
+
+            const avatar = buildAvatar(writer);
+
+            const body = document.createElement('div');
+            body.className = 'comment-body';
+
+            const meta = document.createElement('p');
+            meta.className = 'comment-meta';
+            meta.textContent = `${authorName} · ${timeAgo(comment.created_at)}`;
+
+            const text = document.createElement('p');
+            text.className = 'comment-text';
+            text.textContent = comment.text;
+
+            body.appendChild(meta);
+            body.appendChild(text);
+
+            if (isLoggedIn && comment.user === currentUserId) {
+                const deleteLink = document.createElement('button');
+                deleteLink.type = 'button';
+                deleteLink.className = 'comment-delete';
+                deleteLink.textContent = 'Delete';
+                deleteLink.addEventListener('click', async () => {
+                    deleteLink.disabled = true;
+                    try {
+                        const res = await fetch(`/api/deletecomment/${encodeURIComponent(comment.id)}`, {
+                            method: 'POST'
+                        });
+                        if (!res.ok) throw new Error('Could not delete comment');
+                        onDeleted();
+                    } catch (err) {
+                        console.error(err);
+                        deleteLink.disabled = false;
+                    }
+                });
+                body.appendChild(deleteLink);
+            }
+
+            item.appendChild(avatar);
+            item.appendChild(body);
+            commentsListEl.appendChild(item);
+        }
+    }
+
+    function buildCommentForm(chapter, onPosted) {
+        commentsFormSlotEl.innerHTML = '';
+
+        if (!isLoggedIn) {
+            const prompt = document.createElement('p');
+            prompt.className = 'comment-login-prompt';
+            prompt.innerHTML = '<a href="/auth">Log in</a> to leave a comment.';
+            commentsFormSlotEl.appendChild(prompt);
+            return;
+        }
+
+        const form = document.createElement('form');
+        form.className = 'comment-form';
+
+        const textarea = document.createElement('textarea');
+        textarea.placeholder = chapter === null
+            ? 'Add a comment about the whole story…'
+            : `Add a comment about Chapter ${chapter}…`;
+        textarea.rows = 3;
+        textarea.required = true;
+
+        const submitBtn = document.createElement('button');
+        submitBtn.type = 'submit';
+        submitBtn.textContent = 'Post Comment';
+
+        const errorEl = document.createElement('p');
+        errorEl.className = 'comment-error';
+
+        form.appendChild(textarea);
+        form.appendChild(submitBtn);
+        form.appendChild(errorEl);
+        commentsFormSlotEl.appendChild(form);
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const text = textarea.value.trim();
+            if (!text) return;
+
+            submitBtn.disabled = true;
+            errorEl.textContent = '';
+
+            try {
+                const res = await fetch(`/api/postcomment/${encodeURIComponent(storyId)}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ chapter, text })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Could not post comment');
+
+                textarea.value = '';
+                onPosted();
+            } catch (err) {
+                errorEl.textContent = err.message;
+            } finally {
+                submitBtn.disabled = false;
+            }
+        });
+    }
+
+    async function refreshComments() {
+        const chapter = commentMode === 'chapter' ? currentChapterGlobalNum : null;
+
+        commentsHeadingEl.textContent = commentMode === 'chapter'
+            ? (chapter === null ? 'Chapter Discussion' : `Chapter ${chapter} Discussion`)
+            : 'Story Discussion';
+
+        if (commentMode === 'chapter' && chapter === null) {
+            // Chapter hasn't loaded yet - nothing to fetch or post to
+            commentsListEl.innerHTML = '<p class="stories-status">Loading comments…</p>';
+            commentsFormSlotEl.innerHTML = '';
+            return;
+        }
+
+        commentsListEl.innerHTML = '<p class="stories-status">Loading comments…</p>';
+        buildCommentForm(chapter, refreshComments);
+
+        try {
+            const url = chapter === null
+                ? `/api/getcomments/${encodeURIComponent(storyId)}`
+                : `/api/getcomments/${encodeURIComponent(storyId)}?chapter=${chapter}`;
+            const res = await fetch(url);
+            if (!res.ok) throw new Error('Failed to load comments');
+            const comments = await res.json();
+            renderComments(comments, refreshComments);
+        } catch (err) {
+            commentsListEl.innerHTML = '<p class="stories-status">Couldn\'t load comments right now.</p>';
+            console.error(err);
+        }
+    }
+
+    function setCommentMode(mode) {
+        if (mode === commentMode) return;
+        commentMode = mode;
+        modeChapterBtn.classList.toggle('active', mode === 'chapter');
+        modeStoryBtn.classList.toggle('active', mode === 'story');
+        refreshComments();
     }
 
     loadStoryInfo();
