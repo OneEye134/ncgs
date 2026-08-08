@@ -8,6 +8,24 @@
         <h2 id="story-title">Loading story…</h2>
         <p id="story-author" class="story-meta"></p>
         <p id="story-description"></p>
+        <button id="like-story-btn" class="like-btn" type="button" aria-pressed="false">
+            <span class="like-icon" aria-hidden="true">♡</span>
+            <span id="like-count">0</span>
+        </button>
+    </div>
+
+    <div id="content-warning-overlay" class="content-warning-overlay" hidden>
+        <div class="content-warning-box" role="alertdialog" aria-labelledby="content-warning-title">
+            <p id="content-warning-icon" class="content-warning-icon" aria-hidden="true">⚠️</p>
+            <h3 id="content-warning-title">Warning!</h3>
+            <p id="content-warning-severe-text" class="content-warning-severe" hidden></p>
+            <p id="content-warning-mild-text" class="content-warning-mild" hidden></p>
+            <p class="content-warning-subtext">If you are uncomfortable about these topics, please leave.</p>
+            <div class="content-warning-actions">
+                <button type="button" class="content-warning-leave" onclick="redirectTo('/')">Leave</button>
+                <button type="button" id="content-warning-continue" class="content-warning-continue">I Understand, Continue</button>
+            </div>
+        </div>
     </div>
 
     <div class="chapter-controls">
@@ -62,6 +80,135 @@
     const prevBtn = document.getElementById('prev-chap');
     const nextBtn = document.getElementById('next-chap');
 
+    const likeBtn = document.getElementById('like-story-btn');
+    const likeIconEl = likeBtn.querySelector('.like-icon');
+    const likeCountEl = document.getElementById('like-count');
+    let likeInFlight = false;
+
+    function setLikeState(liked, count) {
+        likeBtn.classList.toggle('liked', liked);
+        likeBtn.setAttribute('aria-pressed', liked ? 'true' : 'false');
+        likeIconEl.textContent = liked ? '♥' : '♡';
+        likeCountEl.textContent = String(count);
+    }
+
+    async function loadLikes() {
+        try {
+            const res = await fetch(`/api/getlikes/${encodeURIComponent(storyId)}`);
+            if (!res.ok) throw new Error('Failed to load likes');
+            const data = await res.json();
+            setLikeState(!!data.liked, data.count || 0);
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    likeBtn.addEventListener('click', async () => {
+        if (!isLoggedIn) {
+            redirectTo('/auth');
+            return;
+        }
+        if (likeInFlight) return;
+
+        likeInFlight = true;
+        likeBtn.disabled = true;
+        try {
+            const res = await fetch(`/api/likestory/${encodeURIComponent(storyId)}`, { method: 'POST' });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Could not update like');
+            setLikeState(!!data.liked, data.count || 0);
+        } catch (err) {
+            console.error(err);
+        } finally {
+            likeInFlight = false;
+            likeBtn.disabled = false;
+        }
+    });
+
+    const warningOverlayEl = document.getElementById('content-warning-overlay');
+    const warningIconEl = document.getElementById('content-warning-icon');
+    const warningTitleEl = document.getElementById('content-warning-title');
+    const warningSevereTextEl = document.getElementById('content-warning-severe-text');
+    const warningMildTextEl = document.getElementById('content-warning-mild-text');
+    const warningContinueBtn = document.getElementById('content-warning-continue');
+
+    function getCookie(name) {
+        const match = document.cookie.match('(?:^|; )' + name + '=([^;]*)');
+        return match ? decodeURIComponent(match[1]) : null;
+    }
+
+    // Writers flag content in the story description with markers, either
+    // bracketed ("![NSFW]") or plain ("!NSFW", "!rape"). "!" marks a hard
+    // content warning (always shown). "?" marks something that might just
+    // cause slight discomfort (e.g. "?[violence]", "?gore") - readers can
+    // turn these off from their profile, via the "hideMildWarnings" cookie.
+    // In the plain (unbracketed) form, multi-word tags use a dot in place
+    // of a space (e.g. "!heavy.gore", "?boundary.breaking") since a real
+    // space would end the tag early; dots are converted back to spaces
+    // when the tag is displayed. Every tag found is pulled out of the
+    // description text (readers shouldn't see the raw markup) and
+    // surfaced as an upfront warning screen.
+    function makeTagRegex(marker) {
+        const esc = marker.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        return new RegExp(esc + '\\[\\s*([^\\]]+?)\\s*\\]|' + esc + '([A-Za-z][\\w.-]*)', 'g');
+    }
+    const SEVERE_TAG_RE = makeTagRegex('!');
+    const MILD_TAG_RE = makeTagRegex('?');
+
+    function extractTags(description, tagRegex) {
+        const tags = [];
+        const seen = new Set();
+        const cleaned = (description || '').replace(tagRegex, (match, bracketed, plain) => {
+            const raw = bracketed || plain || '';
+            const label = raw.replace(/\./g, ' ').replace(/\s+/g, ' ').trim();
+            const key = label.toLowerCase();
+            if (label && !seen.has(key)) {
+                seen.add(key);
+                tags.push(label);
+            }
+            return '';
+        });
+        return { cleaned, tags };
+    }
+
+    function extractContentWarnings(description) {
+        const severe = extractTags(description, SEVERE_TAG_RE);
+        const mild = extractTags(severe.cleaned, MILD_TAG_RE);
+        const cleaned = mild.cleaned.replace(/\s{2,}/g, ' ').trim();
+        return { cleaned, severeTags: severe.tags, mildTags: mild.tags };
+    }
+
+    function showContentWarning(severeTags, mildTags) {
+        const hasSevere = severeTags.length > 0;
+
+        warningIconEl.textContent = hasSevere ? '⚠️' : 'ℹ️';
+        warningTitleEl.textContent = hasSevere ? 'Warning!' : 'Note';
+
+        if (hasSevere) {
+            warningSevereTextEl.textContent = `This story contains ${severeTags.join(', ')}.`;
+            warningSevereTextEl.hidden = false;
+        } else {
+            warningSevereTextEl.hidden = true;
+        }
+
+        if (mildTags.length > 0) {
+            warningMildTextEl.textContent = `May also cause slight discomfort: ${mildTags.join(', ')}.`;
+            warningMildTextEl.hidden = false;
+        } else {
+            warningMildTextEl.hidden = true;
+        }
+
+        warningOverlayEl.hidden = false;
+        document.body.style.overflow = 'hidden';
+    }
+
+    function dismissContentWarning() {
+        warningOverlayEl.hidden = true;
+        document.body.style.overflow = '';
+    }
+
+    warningContinueBtn.addEventListener('click', dismissContentWarning);
+
     async function loadStoryInfo() {
         try {
             const res = await fetch(`/api/getstoryinfo/${encodeURIComponent(storyId)}`);
@@ -72,8 +219,26 @@
             const authorName = writer.nickname || writer.username || 'Unknown';
 
             titleEl.textContent = info.title || 'Untitled Story';
-            authorEl.textContent = `By ${authorName}`;
-            descriptionEl.textContent = info.description || '';
+            authorEl.textContent = 'By ';
+            if (writer.username) {
+                const authorLink = document.createElement('a');
+                authorLink.href = `/profile/${encodeURIComponent(writer.username)}`;
+                authorLink.className = 'author-link';
+                authorLink.textContent = authorName;
+                authorEl.appendChild(authorLink);
+            } else {
+                authorEl.appendChild(document.createTextNode(authorName));
+            }
+
+            const { cleaned, severeTags, mildTags } = extractContentWarnings(info.description);
+            descriptionEl.textContent = cleaned;
+
+            const mildWarningsEnabled = getCookie('hideMildWarnings') !== 'true';
+            const showMild = mildTags.length > 0 && mildWarningsEnabled;
+            if (severeTags.length > 0 || showMild) {
+                showContentWarning(severeTags, showMild ? mildTags : []);
+            }
+
             document.title = `${info.title || 'Story'} — No Cap, Good Story`;
         } catch (err) {
             titleEl.textContent = 'Story not found';
@@ -600,5 +765,6 @@
 
     loadStoryInfo();
     loadStoryChapters();
+    loadLikes();
 </script>
 {% endblock %}

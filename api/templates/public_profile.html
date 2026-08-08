@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block title %}Profile - No Cap, Good Story{% endblock %}
+
+{% block extra_style %}
+<style>
+    .profile-page { max-width: 700px; margin: 0 auto; }
+    .profile-block { background:var(--card-bg); border:1px solid var(--border-color); border-radius:14px; padding:22px 24px; margin-bottom:24px; box-shadow: 0 2px 10px var(--shadow); }
+    .profile-block h3 { margin-top:0; color: var(--heading); }
+    .profile-header { display:flex; align-items:center; gap:16px; margin-bottom:8px; }
+    .profile-avatar { width:64px; height:64px; border-radius:50%; object-fit:cover; background-color: var(--accent); }
+    .profile-identity .profile-username { font-weight:bold; font-size:1.15em; color: var(--heading); }
+    .profile-bio { color: var(--text-secondary); margin-top: 10px; white-space: pre-wrap; }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="profile-page">
+    <div class="profile-block" id="profile-info-block">
+        <div class="profile-header">
+            <img id="profile-avatar" class="profile-avatar" src="" alt="" style="display:none;">
+            <div class="profile-identity">
+                <div class="profile-username" id="profile-username">Loading&hellip;</div>
+            </div>
+        </div>
+        <p class="profile-bio" id="profile-bio"></p>
+    </div>
+
+    <section class="stories-section">
+        <h2>Stories</h2>
+        <div id="stories-list" class="stories-grid">
+            <p class="stories-status">Loading stories...</p>
+        </div>
+    </section>
+</section>
+{% endblock %}
+
+{% block extra_script %}
+<script>
+    const username = {{ username | tojson }};
+
+    const usernameEl = document.getElementById('profile-username');
+    const bioEl = document.getElementById('profile-bio');
+    const avatarEl = document.getElementById('profile-avatar');
+    const listEl = document.getElementById('stories-list');
+
+    function escapeHtml(str) {
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+
+    async function loadUserProfile() {
+        try {
+            const res = await fetch(`/api/getuserprofile/${encodeURIComponent(username)}`);
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Could not load profile');
+
+            const displayName = data.nickname || data.username;
+            usernameEl.textContent = displayName;
+            document.title = `${displayName} — No Cap, Good Story`;
+
+            if (data.bio) {
+                bioEl.textContent = data.bio;
+            } else {
+                bioEl.textContent = '';
+            }
+
+            if (data.avatar_url) {
+                avatarEl.src = data.avatar_url;
+                avatarEl.style.display = 'block';
+            }
+
+            renderStories(data.stories || []);
+        } catch (err) {
+            usernameEl.textContent = 'User not found';
+            listEl.innerHTML = '';
+            console.error(err);
+        }
+    }
+
+    function renderStories(stories) {
+        if (!stories || stories.length === 0) {
+            listEl.innerHTML = '<p class="stories-status">No stories yet.</p>';
+            return;
+        }
+
+        listEl.innerHTML = '';
+        stories.forEach(story => {
+            const date = story.edited_at || story.created_at;
+            const dateLabel = date
+                ? new Date(date).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
+                : '';
+
+            const card = document.createElement('div');
+            card.className = 'story-block';
+            card.innerHTML = `
+                <h3>${escapeHtml(story.title)}</h3>
+                <p class="story-meta">${dateLabel ? 'Last edited ' + dateLabel : ''}</p>
+                <p>${escapeHtml(story.description || '')}</p>
+                <button class="read-story-btn">Read the Story</button>
+            `;
+            card.querySelector('.read-story-btn').addEventListener('click', () => {
+                redirectTo('/story/' + story.id);
+            });
+            listEl.appendChild(card);
+        });
+    }
+
+    loadUserProfile();
+</script>
+{% endblock %}

@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+
+{% block title %}Your Profile - No Cap, Good Story{% endblock %}
+
+{% block extra_style %}
+<style>
+    .profile-page { max-width: 640px; margin: 0 auto; }
+    .profile-block { background:var(--card-bg); border:1px solid var(--border-color); border-radius:14px; padding:22px 24px; margin-bottom:24px; box-shadow: 0 2px 10px var(--shadow); }
+    .profile-block h3 { margin-top:0; color: var(--heading); }
+    .profile-header { display:flex; align-items:center; gap:16px; margin-bottom:8px; }
+    .profile-avatar { width:64px; height:64px; border-radius:50%; object-fit:cover; background-color: var(--accent); }
+    .profile-identity .profile-username { font-weight:bold; font-size:1.15em; color: var(--heading); }
+    .profile-identity .profile-email { color: var(--text-muted); font-size:0.9em; }
+    .write-field { margin-bottom:16px; }
+    .write-field label { display:block; font-size:0.85em; color:var(--text-muted); margin-bottom:4px; }
+    .write-field input, .write-field textarea {
+        width: 100%; padding:8px 10px; font-size:1em; border-radius:5px; border:1px solid var(--border-strong);
+        background-color: var(--input-bg); color: var(--text); font-family: inherit; box-sizing: border-box;
+    }
+    .bio-count { text-align:right; font-size:0.8em; color: var(--text-muted); margin-top:4px; }
+    .save-btn { padding:10px 22px; font-size:1em; border:none; border-radius:5px; background-color:var(--accent); color:#fff; cursor:pointer; }
+    .save-btn:hover { background-color:var(--accent-hover); }
+    .status-msg { margin-left:12px; font-size:0.9em; }
+    .status-msg.ok { color:#2e7d32; }
+    .status-msg.error { color:var(--danger); }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="profile-page">
+    <div class="profile-block">
+        <div class="profile-header">
+            <img id="profile-avatar" class="profile-avatar" src="" alt="" style="display:none;">
+            <div class="profile-identity">
+                <div class="profile-username" id="profile-username">&nbsp;</div>
+                <div class="profile-email" id="profile-email"></div>
+                <a href="#" id="view-public-profile-link" style="display:none;">View your public profile &rarr;</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="profile-block">
+        <h3>Edit Profile</h3>
+        <div class="write-field">
+            <label for="nickname-input">Display name</label>
+            <input type="text" id="nickname-input" maxlength="80" placeholder="Shown instead of your username on stories and comments">
+        </div>
+        <div class="write-field">
+            <label for="bio-input">Bio</label>
+            <textarea id="bio-input" rows="4" maxlength="500" placeholder="Tell readers a little about yourself"></textarea>
+            <div class="bio-count"><span id="bio-count">0</span>/500</div>
+        </div>
+        <button class="save-btn" id="save-profile-btn">Save Profile</button>
+        <span id="profile-status" class="status-msg"></span>
+    </div>
+
+    <div class="profile-block">
+        <h3>Reading Preferences</h3>
+        <label class="switch-row" for="mild-warnings-toggle">
+            <span>Show "slight discomfort" content warnings</span>
+            <span class="switch">
+                <input type="checkbox" id="mild-warnings-toggle">
+                <span class="switch-slider"></span>
+            </span>
+        </label>
+        <p class="settings-hint">Some stories flag mild content (like brief violence or language) as a heads-up rather than a full warning. Turn this off to skip those - stories with stronger warnings will still show them. This is saved on this device only.</p>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_script %}
+<script>
+    const usernameEl = document.getElementById('profile-username');
+    const emailEl = document.getElementById('profile-email');
+    const avatarEl = document.getElementById('profile-avatar');
+    const publicLinkEl = document.getElementById('view-public-profile-link');
+    const nicknameInput = document.getElementById('nickname-input');
+    const bioInput = document.getElementById('bio-input');
+    const bioCountEl = document.getElementById('bio-count');
+    const statusEl = document.getElementById('profile-status');
+    const mildWarningsToggle = document.getElementById('mild-warnings-toggle');
+
+    const MILD_WARNING_COOKIE = 'hideMildWarnings';
+    const MILD_WARNING_COOKIE_MAX_AGE = 60 * 60 * 24 * 365; // 1 year
+
+    function getCookie(name) {
+        const match = document.cookie.match('(?:^|; )' + name + '=([^;]*)');
+        return match ? decodeURIComponent(match[1]) : null;
+    }
+
+    function setCookie(name, value, maxAgeSeconds) {
+        const secure = window.location.protocol === 'https:' ? '; Secure' : '';
+        document.cookie = name + '=' + encodeURIComponent(value) +
+            '; Max-Age=' + maxAgeSeconds +
+            '; Path=/; SameSite=Lax' + secure;
+    }
+
+    // Checked = show these warnings (the default). Only a "true" cookie
+    // value turns them off, so readers who've never touched the toggle
+    // still see mild warnings by default.
+    mildWarningsToggle.checked = getCookie(MILD_WARNING_COOKIE) !== 'true';
+    mildWarningsToggle.addEventListener('change', () => {
+        setCookie(MILD_WARNING_COOKIE, mildWarningsToggle.checked ? 'false' : 'true', MILD_WARNING_COOKIE_MAX_AGE);
+    });
+
+    function showStatus(message, ok) {
+        statusEl.textContent = message;
+        statusEl.className = 'status-msg ' + (ok ? 'ok' : 'error');
+        if (ok) setTimeout(() => { statusEl.textContent = ''; }, 2500);
+    }
+
+    function updateBioCount() {
+        bioCountEl.textContent = String(bioInput.value.length);
+    }
+    bioInput.addEventListener('input', updateBioCount);
+
+    async function loadProfile() {
+        try {
+            const res = await fetch('/api/getprofile');
+            if (!res.ok) throw new Error('Could not load profile');
+            const profile = await res.json();
+
+            usernameEl.textContent = profile.username || '';
+            emailEl.textContent = profile.email || '';
+            nicknameInput.value = profile.nickname || '';
+            bioInput.value = profile.bio || '';
+            updateBioCount();
+
+            if (profile.username) {
+                publicLinkEl.href = `/profile/${encodeURIComponent(profile.username)}`;
+                publicLinkEl.style.display = 'inline-block';
+            }
+
+            if (profile.avatar_url) {
+                avatarEl.src = profile.avatar_url;
+                avatarEl.style.display = 'block';
+            }
+        } catch (err) {
+            showStatus('Could not load your profile right now', false);
+            console.error(err);
+        }
+    }
+
+    document.getElementById('save-profile-btn').addEventListener('click', async () => {
+        const nickname = nicknameInput.value.trim();
+        const bio = bioInput.value.trim();
+
+        try {
+            const res = await fetch('/api/updateprofile', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nickname, bio })
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Could not save profile');
+            showStatus('Saved!', true);
+        } catch (err) {
+            showStatus(err.message, false);
+        }
+    });
+
+    loadProfile();
+</script>
+{% endblock %}

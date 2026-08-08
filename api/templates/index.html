@@ -6,7 +6,20 @@
     <div id="welcome-banner" style="display:none;"></div>
 
     <section class="stories-section">
-        <h2>Latest Stories</h2>
+        <div class="stories-section-header">
+            <h2 id="stories-heading">Latest Stories</h2>
+            <div class="stories-controls">
+                <div class="sort-toggle" role="tablist" id="sort-toggle">
+                    <button type="button" id="sort-recent-btn" class="sort-toggle-btn active" onclick="setSort('recent')">Most Recent</button>
+                    <button type="button" id="sort-likes-btn" class="sort-toggle-btn" onclick="setSort('likes')">Most Liked</button>
+                </div>
+                <form id="search-form" class="story-search-form" role="search">
+                    <input type="text" id="search-input" placeholder="Search title, description, or #hashtag" aria-label="Search stories by title, description, or hashtag">
+                    <button type="submit">Search</button>
+                    <button type="button" id="clear-search-btn" style="display:none;">Clear</button>
+                </form>
+            </div>
+        </div>
         <div id="stories-list" class="stories-grid">
             <p class="stories-status">Loading stories...</p>
         </div>
@@ -27,51 +40,113 @@
         banner.style.display = 'block';
     }
 
-    // Load stories from the API
+    const listEl = document.getElementById('stories-list');
+    const headingEl = document.getElementById('stories-heading');
+    const searchForm = document.getElementById('search-form');
+    const searchInput = document.getElementById('search-input');
+    const clearSearchBtn = document.getElementById('clear-search-btn');
+    const sortToggleEl = document.getElementById('sort-toggle');
+    const sortRecentBtn = document.getElementById('sort-recent-btn');
+    const sortLikesBtn = document.getElementById('sort-likes-btn');
+
+    let currentSort = 'recent';
+
+    function renderStories(stories, emptyMessage) {
+        if (!stories || stories.length === 0) {
+            listEl.innerHTML = `<p class="stories-status">${escapeHtml(emptyMessage)}</p>`;
+            return;
+        }
+
+        listEl.innerHTML = '';
+        stories.forEach(story => {
+            const writer = story.users || {};
+            const authorName = writer.nickname || writer.username || 'Unknown';
+            const initial = authorName.trim().charAt(0).toUpperCase() || '?';
+            const date = story.created_at
+                ? new Date(story.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
+                : '';
+            const authorHtml = writer.username
+                ? `<a href="/profile/${encodeURIComponent(writer.username)}" class="author-link">${escapeHtml(authorName)}</a>`
+                : escapeHtml(authorName);
+            const likes = story.likes || 0;
+
+            const card = document.createElement('div');
+            card.className = 'story-block';
+            card.innerHTML = `
+                <div class="story-header">
+                    <div class="story-avatar">${escapeHtml(initial)}</div>
+                    <div>
+                        <h3>${escapeHtml(story.title)}</h3>
+                        <p class="story-meta">By ${authorHtml}${date ? ' &middot; ' + date : ''} &middot; <span class="story-card-likes">&hearts; ${likes}</span></p>
+                    </div>
+                </div>
+                <p>${escapeHtml(story.description || '')}</p>
+                <button class="read-story-btn">Read the Story</button>
+            `;
+            card.querySelector('.read-story-btn').addEventListener('click', () => {
+                redirectTo('/story/' + story.id);
+            });
+            listEl.appendChild(card);
+        });
+    }
+
+    // Load the story feed from the API, honoring the current sort mode
     async function loadStories() {
-        const listEl = document.getElementById('stories-list');
+        headingEl.textContent = currentSort === 'likes' ? 'Most Liked Stories' : 'Latest Stories';
+        clearSearchBtn.style.display = 'none';
+        sortToggleEl.style.display = 'flex';
+        listEl.innerHTML = '<p class="stories-status">Loading stories...</p>';
         try {
-            const res = await fetch('/api/getstories');
+            const res = await fetch(`/api/getstories?sort=${encodeURIComponent(currentSort)}`);
             if (!res.ok) throw new Error('Failed to fetch stories');
             const stories = await res.json();
-
-            if (!stories || stories.length === 0) {
-                listEl.innerHTML = '<p class="stories-status">No stories yet.</p>';
-                return;
-            }
-
-            listEl.innerHTML = '';
-            stories.forEach(story => {
-                const writer = story.users || {};
-                const authorName = writer.nickname || writer.username || 'Unknown';
-                const initial = authorName.trim().charAt(0).toUpperCase() || '?';
-                const date = story.created_at
-                    ? new Date(story.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
-                    : '';
-
-                const card = document.createElement('div');
-                card.className = 'story-block';
-                card.innerHTML = `
-                    <div class="story-header">
-                        <div class="story-avatar">${escapeHtml(initial)}</div>
-                        <div>
-                            <h3>${escapeHtml(story.title)}</h3>
-                            <p class="story-meta">By ${escapeHtml(authorName)}${date ? ' &middot; ' + date : ''}</p>
-                        </div>
-                    </div>
-                    <p>${escapeHtml(story.description || '')}</p>
-                    <button class="read-story-btn">Read the Story</button>
-                `;
-                card.querySelector('.read-story-btn').addEventListener('click', () => {
-                    redirectTo('/story/' + story.id);
-                });
-                listEl.appendChild(card);
-            });
+            renderStories(stories, 'No stories yet.');
         } catch (err) {
             listEl.innerHTML = '<p class="stories-status">Couldn\'t load stories right now.</p>';
             console.error(err);
         }
     }
+
+    function setSort(sort) {
+        if (sort === currentSort) return;
+        currentSort = sort;
+        sortRecentBtn.classList.toggle('active', sort === 'recent');
+        sortLikesBtn.classList.toggle('active', sort === 'likes');
+        loadStories();
+    }
+
+    // Search always ranks results most-liked-first, so the sort toggle
+    // (which only applies to the plain feed) is hidden while searching.
+    async function searchStories(query) {
+        const isHashtag = query.trim().startsWith('#');
+        headingEl.textContent = isHashtag
+            ? `Results for "#${query.trim().replace(/^#+/, '')}"`
+            : `Results for "${query.trim()}"`;
+        clearSearchBtn.style.display = 'inline-block';
+        sortToggleEl.style.display = 'none';
+        listEl.innerHTML = '<p class="stories-status">Searching...</p>';
+        try {
+            const res = await fetch(`/api/searchstories?q=${encodeURIComponent(query)}`);
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Search failed');
+            renderStories(data, 'No stories found.');
+        } catch (err) {
+            listEl.innerHTML = `<p class="stories-status">${escapeHtml(err.message)}</p>`;
+            console.error(err);
+        }
+    }
+
+    searchForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const query = searchInput.value.trim();
+        if (!query) return;
+        searchStories(query);
+    });
+
+    clearSearchBtn.addEventListener('click', () => {
+        searchInput.value = '';
+        loadStories();
+    });
 
     function escapeHtml(str) {
         const div = document.createElement('div');

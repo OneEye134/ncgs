@@ -1,12 +1,13 @@
+import os
 import re
 import uuid
 from datetime import datetime, timezone
 
 from flask import Flask, render_template, request, redirect, session, jsonify
 try:
-    from api.supabase_client import supabase
+    from api.supabase_client import supabase, get_auth_client
 except:
-    from supabase_client import supabase
+    from supabase_client import supabase, get_auth_client
 
 try:
     from postgrest.exceptions import APIError
@@ -14,7 +15,7 @@ except ImportError:
     APIError = None
 
 app = Flask(__name__)
-app.secret_key = "5e9c1ba28a23064b4efe77ce9e7b7ae232739ebee96de578c347eb4fba2ac772"
+app.secret_key = os.getenv("FLASK_SECRET_KEY") or "dev-only-insecure-key-set-FLASK_SECRET_KEY-in-env"
 
 CHAPTER_FILENAME_RE = re.compile(r"^(\d+)chapS(\d+)\.md$")
 HEADING_RE = re.compile(r"^(#{1,6})\s+(.*)$")
@@ -98,6 +99,40 @@ def get_owned_story(story_id):
     return story_row, None
 
 
+def attach_like_counts(stories):
+    """Adds a `likes` (int) field to each story dict, based on rows in
+    likes_story. Counted in Python rather than via a related-table select,
+    since a story with zero likes has no likes_story row to embed at all."""
+    story_ids = [s["id"] for s in stories if s.get("id")]
+
+    counts = {}
+    if story_ids:
+        likes_result = (
+            supabase.table("likes_story")
+            .select("story")
+            .in_("story", story_ids)
+            .execute()
+        )
+        for row in likes_result.data or []:
+            story_id = row.get("story")
+            counts[story_id] = counts.get(story_id, 0) + 1
+
+    for story in stories:
+        story["likes"] = counts.get(story.get("id"), 0)
+
+    return stories
+
+
+def sanitize_search_term(term):
+    # Escape Postgres' LIKE wildcards so a search for e.g. "50%" or "a_b"
+    # matches those characters literally instead of as wildcards.
+    term = term.replace("\\", "").replace("%", "\\%").replace("_", "\\_")
+    # Commas and parens have syntax meaning in the postgrest or_() filter
+    # string below (which isn't parameterized), so drop them entirely.
+    term = re.sub(r"[,()]", "", term)
+    return term.strip()
+
+
 @app.route('/')
 def home():
     return render_template('index.html')
@@ -111,6 +146,13 @@ def story(story):
 @app.route('/auth')
 def userauth():
     return render_template('userauth.html')
+
+
+@app.route('/profile')
+def profile():
+    if "user_id" not in session:
+        return redirect("/auth")
+    return render_template('profile.html')
 
 
 @app.route('/write')
@@ -138,7 +180,11 @@ def signup():
     email = request.form["email"]
     password = request.form["password"]
 
-    auth = supabase.auth.sign_up({
+    # Use a throwaway client for this - signing up on the shared `supabase`
+    # client would leave it authenticated as this user for every other
+    # request in the process until someone else logs in/signs up.
+    auth_client = get_auth_client()
+    auth = auth_client.auth.sign_up({
         "email": email,
         "password": password
     })
@@ -171,13 +217,21 @@ def login():
         email = identifier
     else:
         # treat it as a username and look up the matching email
-        user_row = supabase.table("users").select("email").eq("username", identifier).single().execute()
+        # .single() raises (rather than returning empty data) when zero
+        # rows match, so a nonexistent username has to be caught here.
+        try:
+            user_row = supabase.table("users").select("email").eq("username", identifier).single().execute()
+        except Exception:
+            return "No account found with that username", 400
         if not user_row.data:
             return "No account found with that username", 400
         email = user_row.data["email"]
 
+    # Same reasoning as signup(): verify the password on a throwaway
+    # client so the shared `supabase` client's auth state never changes.
     try:
-        auth = supabase.auth.sign_in_with_password({
+        auth_client = get_auth_client()
+        auth = auth_client.auth.sign_in_with_password({
             "email": email,
             "password": password
         })
@@ -210,6 +264,61 @@ def login():
 
 @app.route("/api/getstories")
 def getstories():
+    """Returns the story feed. Pass ?sort=likes for most-liked-first,
+    or omit it (or ?sort=recent) for newest-first."""
+    sort = request.args.get("sort", "recent")
+
+    query = supabase.table("stories").select("""
+        id,
+        title,
+        description,
+        created_at,
+        edited_at,
+        users:writer (
+            username,
+            nickname
+        )
+    """).order("created_at", desc=True)
+
+    # PostgREST can't order by a related table's aggregate count, so for
+    # "most liked" a larger recent pool is pulled and ranked in Python
+    # instead of just the latest 10.
+    query = query.limit(200 if sort == "likes" else 10)
+
+    result = query.execute()
+    stories = attach_like_counts(result.data or [])
+
+    if sort == "likes":
+        stories.sort(key=lambda s: (s["likes"], s["created_at"]), reverse=True)
+        stories = stories[:10]
+
+    return jsonify(stories)
+
+
+@app.route("/api/searchstories")
+def search_stories():
+    """Search stories. A query starting with '#' matches that exact
+    hashtag in the title/description (e.g. '#fantasy'). Anything else is
+    a plain substring match against the title or description. Either way,
+    results come back most-liked-first."""
+    raw_query = (request.args.get("q") or "").strip()
+    if not raw_query:
+        return jsonify({"error": "Search query is required"}), 400
+
+    if raw_query.startswith("#"):
+        # Only keep hashtag-safe characters (word chars + hyphen) - this
+        # also keeps the tag safe to interpolate into the postgrest or_()
+        # filter string below, since that string isn't parameterized.
+        tag = re.sub(r"[^\w-]", "", raw_query.lstrip("#"))
+        if not tag:
+            return jsonify({"error": "Search query is required"}), 400
+        pattern = f"%#{tag}%"
+    else:
+        term = sanitize_search_term(raw_query)
+        if not term:
+            return jsonify({"error": "Search query is required"}), 400
+        pattern = f"%{term}%"
+
     result = (
         supabase.table("stories")
         .select("""
@@ -223,33 +332,42 @@ def getstories():
                 nickname
             )
         """)
+        .or_(f"title.ilike.{pattern},description.ilike.{pattern}")
         .order("created_at", desc=True)
-        .limit(10)
+        .limit(50)
         .execute()
     )
 
-    return result.data
+    stories = attach_like_counts(result.data or [])
+    stories.sort(key=lambda s: (s["likes"], s["created_at"]), reverse=True)
+    return jsonify(stories)
 
 
 @app.route("/api/getstoryinfo/<story>")
 def getstoryinfo(story):
-    result = (
-        supabase.table("stories")
-        .select("""
-            id,
-            title,
-            description,
-            created_at,
-            edited_at,
-            users:writer (
-                username,
-                nickname
-            )
-        """)
-        .eq("id", story)
-        .single()
-        .execute()
-    )
+    # .single() raises (rather than returning empty data) when zero rows
+    # match, so a nonexistent story id has to be caught here rather than
+    # relying on `if not result.data` below.
+    try:
+        result = (
+            supabase.table("stories")
+            .select("""
+                id,
+                title,
+                description,
+                created_at,
+                edited_at,
+                users:writer (
+                    username,
+                    nickname
+                )
+            """)
+            .eq("id", story)
+            .single()
+            .execute()
+        )
+    except Exception:
+        return jsonify({"error": "Story not found"}), 404
 
     if not result.data:
         return jsonify({"error": "Story not found"}), 404
@@ -314,6 +432,125 @@ def getchapter(story, season, num):
         "chapter": num,
         "content": content
     })
+
+
+@app.route("/api/getprofile")
+def get_profile():
+    if "user_id" not in session:
+        return jsonify({"error": "Must be logged in"}), 401
+
+    # hide_mild_warnings may not exist on the users table in every
+    # environment, so fall back to a select without it rather than
+    # failing the whole profile load (same pattern as avatar_url below).
+    try:
+        result = (
+            supabase.table("users")
+            .select("username, email, nickname, bio, avatar_url, hide_mild_warnings")
+            .eq("id", session["user_id"])
+            .single()
+            .execute()
+        )
+    except Exception as e:
+        msg = str(e)
+        if "hide_mild_warnings" not in msg:
+            not_found = "0 rows" in msg or "contains 0 rows" in msg or "PGRST116" in msg
+            if not_found:
+                return jsonify({"error": "Profile not found"}), 404
+            return jsonify({"error": f"Could not load profile: {msg}"}), 500
+        try:
+            result = (
+                supabase.table("users")
+                .select("username, email, nickname, bio, avatar_url")
+                .eq("id", session["user_id"])
+                .single()
+                .execute()
+            )
+        except Exception as e2:
+            msg2 = str(e2)
+            not_found = "0 rows" in msg2 or "contains 0 rows" in msg2 or "PGRST116" in msg2
+            if not_found:
+                return jsonify({"error": "Profile not found"}), 404
+            return jsonify({"error": f"Could not load profile: {msg2}"}), 500
+
+    if not result.data:
+        return jsonify({"error": "Profile not found"}), 404
+
+    result.data.setdefault("hide_mild_warnings", False)
+    return jsonify(result.data)
+
+
+@app.route("/profile/<username>")
+def public_profile(username):
+    return render_template('public_profile.html', username=username)
+
+
+@app.route("/api/getuserprofile/<username>")
+def get_user_profile(username):
+    try:
+        user_result = (
+            supabase.table("users")
+            .select("id, username, nickname, bio, avatar_url")
+            .eq("username", username)
+            .single()
+            .execute()
+        )
+    except Exception as e:
+        msg = str(e)
+        not_found = "0 rows" in msg or "contains 0 rows" in msg or "PGRST116" in msg
+        if not_found:
+            return jsonify({"error": "User not found"}), 404
+        return jsonify({"error": f"Could not load profile: {msg}"}), 500
+
+    if not user_result.data:
+        return jsonify({"error": "User not found"}), 404
+
+    user_row = user_result.data
+
+    stories_result = (
+        supabase.table("stories")
+        .select("id, title, description, created_at, edited_at")
+        .eq("writer", user_row["id"])
+        .order("created_at", desc=True)
+        .execute()
+    )
+
+    return jsonify({
+        "username": user_row["username"],
+        "nickname": user_row.get("nickname"),
+        "bio": user_row.get("bio"),
+        "avatar_url": user_row.get("avatar_url"),
+        "stories": stories_result.data or []
+    })
+
+
+@app.route("/api/updateprofile", methods=["POST"])
+def update_profile():
+    if "user_id" not in session:
+        return jsonify({"error": "Must be logged in"}), 401
+
+    data = request.get_json(silent=True) or {}
+    nickname = (data.get("nickname") or "").strip()
+    bio = (data.get("bio") or "").strip()
+
+    if len(bio) > 500:
+        return jsonify({"error": "Bio must be 500 characters or fewer"}), 400
+
+    update_payload = {
+        "bio": bio,
+        "nickname": nickname or None
+    }
+
+    result = (
+        supabase.table("users")
+        .update(update_payload)
+        .eq("id", session["user_id"])
+        .execute()
+    )
+
+    if not result.data:
+        return jsonify({"error": "Could not update profile"}), 500
+
+    return jsonify({"success": True, "nickname": update_payload["nickname"], "bio": bio})
 
 
 @app.route("/api/mystories")
@@ -596,6 +833,62 @@ def delete_comment(comment_id):
     return jsonify({"success": True})
 
 
+@app.route("/api/getlikes/<story>")
+def get_likes(story):
+    """Returns the like count for a story, and whether the current user
+    (if logged in) has liked it."""
+    result = supabase.table("likes_story").select("story", count="exact").eq("story", story).execute()
+    count = result.count or 0
+
+    liked = False
+    if "user_id" in session:
+        liked_result = (
+            supabase.table("likes_story")
+            .select("story")
+            .eq("story", story)
+            .eq("user", session["user_id"])
+            .execute()
+        )
+        liked = bool(liked_result.data)
+
+    return jsonify({"count": count, "liked": liked})
+
+
+@app.route("/api/likestory/<story>", methods=["POST"])
+def like_story(story):
+    """Toggles the current user's like on a story - likes it if they
+    hadn't, unlikes it if they had."""
+    if "user_id" not in session:
+        return jsonify({"error": "Must be logged in"}), 401
+
+    story_result = supabase.table("stories").select("id").eq("id", story).execute()
+    if not story_result.data:
+        return jsonify({"error": "Story not found"}), 404
+
+    existing = (
+        supabase.table("likes_story")
+        .select("story")
+        .eq("story", story)
+        .eq("user", session["user_id"])
+        .execute()
+    )
+
+    if existing.data:
+        supabase.table("likes_story").delete().eq("story", story).eq("user", session["user_id"]).execute()
+        liked = False
+    else:
+        supabase.table("likes_story").insert({
+            "user": session["user_id"],
+            "story": story
+        }).execute()
+        liked = True
+
+    count_result = supabase.table("likes_story").select("story", count="exact").eq("story", story).execute()
+    count = count_result.count or 0
+
+    return jsonify({"liked": liked, "count": count})
+
+
 @app.route("/api/deletestory/<story>", methods=["POST"])
 def delete_story(story):
     if "user_id" not in session:
@@ -614,9 +907,10 @@ def delete_story(story):
     except Exception:
         pass  # nothing uploaded yet is fine
 
-    # Comments aren't guaranteed to cascade-delete with the story, so
-    # clear them out explicitly before removing the story row itself.
+    # Comments and likes aren't guaranteed to cascade-delete with the
+    # story, so clear them out explicitly before removing the story row.
     supabase.table("comments").delete().eq("story", story).execute()
+    supabase.table("likes_story").delete().eq("story", story).execute()
     supabase.table("stories").delete().eq("id", story).execute()
 
     return jsonify({"success": True})

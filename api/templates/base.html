@@ -38,6 +38,7 @@
             {% if session.get('username') %}
                 <span class="account-name">Hi, {{ session['username'] }}</span>
                 <button id="write-btn" onclick="redirectTo('/write')">Write a Story</button>
+                <button id="write-btn" onclick="redirectTo('/profile')">Profile</button>
                 <button id="auth-btn" onclick="redirectTo('/logout')">Logout</button>
             {% else %}
                 <button id="auth-btn" onclick="redirectTo('/auth')">Login</button>
