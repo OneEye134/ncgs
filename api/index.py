@@ -8,6 +8,11 @@ try:
 except:
     from supabase_client import supabase
 
+try:
+    from postgrest.exceptions import APIError
+except ImportError:
+    APIError = None
+
 app = Flask(__name__)
 app.secret_key = "5e9c1ba28a23064b4efe77ce9e7b7ae232739ebee96de578c347eb4fba2ac772"
 
@@ -183,13 +188,22 @@ def login():
         return "Invalid username/email or password", 400
 
     # fetch the username to store in the session/cookie
-    user_row = supabase.table("users").select("username, avatar_url").eq("id", auth.user.id).single().execute()
+    # (avatar_url may not exist on the users table in every environment,
+    # so fall back to a select without it rather than failing login)
+    try:
+        user_row = supabase.table("users").select("username, avatar_url").eq("id", auth.user.id).single().execute()
+        avatar_url = user_row.data["avatar_url"] if user_row.data else None
+    except Exception as e:
+        if "avatar_url" not in str(e):
+            raise
+        user_row = supabase.table("users").select("username").eq("id", auth.user.id).single().execute()
+        avatar_url = None
     username = user_row.data["username"] if user_row.data else email
 
     session["user_id"] = auth.user.id
     session["username"] = username
     session["email"] = auth.user.email
-    session["avatar_url"] = user_row.data["avatar_url"] if user_row.data else None
+    session["avatar_url"] = avatar_url
 
     return redirect("/?login=true")
 
@@ -454,34 +468,66 @@ def get_comments(story):
     (chapter IS NULL)."""
     chapter_param = request.args.get("chapter")
 
-    query = (
-        supabase.table("comments")
-        .select("""
-            id,
-            created_at,
-            chapter,
-            text,
-            user,
-            users:user (
-                username,
-                nickname,
-                avatar_url
-            )
-        """)
-        .eq("story", story)
-    )
+    # avatar_url may not exist on the users table in every environment
+    # (e.g. it hasn't been migrated in yet). Try the full select first,
+    # and fall back to a version without avatar_url if that column is
+    # missing, rather than 500'ing the whole endpoint.
+    select_with_avatar = """
+        id,
+        created_at,
+        chapter,
+        text,
+        user,
+        users:user (
+            username,
+            nickname,
+            avatar_url
+        )
+    """
+    select_without_avatar = """
+        id,
+        created_at,
+        chapter,
+        text,
+        user,
+        users:user (
+            username,
+            nickname
+        )
+    """
 
-    if chapter_param is None:
-        query = query.is_("chapter", "null")
-    else:
+    def build_query(select_clause):
+        query = supabase.table("comments").select(select_clause).eq("story", story)
+        if chapter_param is None:
+            query = query.is_("chapter", "null")
+        else:
+            query = query.eq("chapter", chapter_num)
+        return query
+
+    if chapter_param is not None:
         try:
             chapter_num = int(chapter_param)
         except ValueError:
             return jsonify({"error": "Chapter must be a whole number"}), 400
-        query = query.eq("chapter", chapter_num)
+    else:
+        chapter_num = None
 
-    result = query.order("created_at", desc=False).execute()
-    return jsonify(result.data)
+    try:
+        result = build_query(select_with_avatar).order("created_at", desc=False).execute()
+        return jsonify(result.data)
+    except Exception as e:
+        missing_avatar_col = "avatar_url" in str(e) and (
+            "does not exist" in str(e) or (APIError is not None and isinstance(e, APIError))
+        )
+        if not missing_avatar_col:
+            raise
+
+        result = build_query(select_without_avatar).order("created_at", desc=False).execute()
+        data = result.data
+        for row in data:
+            if row.get("users") is not None:
+                row["users"].setdefault("avatar_url", None)
+        return jsonify(data)
 
 
 @app.route("/api/postcomment/<story>", methods=["POST"])
