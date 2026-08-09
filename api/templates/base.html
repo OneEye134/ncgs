@@ -38,6 +38,7 @@
             {% if session.get('username') %}
                 <span class="account-name">Hi, {{ session['username'] }}</span>
                 <button id="write-btn" onclick="redirectTo('/write')">Write a Story</button>
+                <button id="write-btn" onclick="redirectTo('/favorites')">Favorites</button>
                 <button id="write-btn" onclick="redirectTo('/profile')">Profile</button>
                 <button id="auth-btn" onclick="redirectTo('/logout')">Logout</button>
             {% else %}
@@ -49,7 +50,7 @@
     {% block content %}{% endblock %}
 
     <footer>
-        <p class="credit">Website made by: <a href="https://chidee.glitch.me">Chidee</a></p>
+        <p class="credit">v2.2.5 Cool update</p>
     </footer>
 
     <script>

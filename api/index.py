@@ -145,7 +145,7 @@ def attach_rank_info(items, id_field):
             continue
         if user_id not in cache:
             stats = compute_writer_points(user_id)
-            cache[user_id] = rank_for_points(stats["points"])
+            cache[user_id] = rank_for_points(stats["points"], stats.get("godly", False))
         users["rank_info"] = cache[user_id]
     return items
 
@@ -204,9 +204,43 @@ POINTS_PER_LIKE = 2
 POINTS_PER_COMMENT = 1
 
 
-def rank_for_points(points):
+def parse_extra_points(extra_point_text):
+    """`users.extra_point` is a free-text admin column. The literal text
+    "Infinity" (any case) marks a god-tier account - handled entirely
+    separately from the point math, see rank_for_points - and anything
+    else that parses as a whole number is added straight to that user's
+    points as a manual bonus/penalty. Blank or non-numeric junk is
+    treated as no bonus rather than erroring."""
+    if extra_point_text is None:
+        return 0, False
+
+    text = str(extra_point_text).strip()
+    if not text:
+        return 0, False
+    if text.lower() == "infinity":
+        return 0, True
+
+    try:
+        return int(text), False
+    except ValueError:
+        return 0, False
+
+
+def rank_for_points(points, godly=False):
     """Returns the writer's current rank plus what's needed to reach the
-    next one, based on RANKS above."""
+    next one, based on RANKS above. `godly=True` (users.extra_point ==
+    "Infinity") bypasses the threshold table entirely: it's a one-off
+    rank above NCGS Icon reserved for the site's creator."""
+    if godly:
+        return {
+            "points": points,
+            "rank": "Creator of NCGS",
+            "rank_threshold": points,
+            "next_rank": None,
+            "next_rank_threshold": None,
+            "points_to_next_rank": 0,
+        }
+
     rank_index = len(RANKS) - 1
     for i, (threshold, _name) in enumerate(RANKS):
         if points >= threshold:
@@ -229,20 +263,29 @@ def rank_for_points(points):
 def compute_writer_points(user_id):
     """Sums up likes and comments received across every story this user
     has written, and converts that into a point total. A writer with no
-    stories (or no engagement yet) simply scores 0.
+    stories (or no engagement yet) simply scores 0 (plus extra_point, if
+    any).
 
-    Two rules keep this from being gamed:
+    Two rules keep engagement from being gamed:
     - The writer's own likes/comments on their own story never count.
     - Only a reader's *first* comment on a given story counts - posting
       ten comments on the same story is worth the same one point as
       posting one. Likes already can't repeat (likestory toggles a
       single row per user/story - see like_story), so no dedup is
-      needed there."""
+      needed there.
+
+    `extra_point` is a manual admin override (see parse_extra_points) -
+    it's added on top of earned points, or replaces the rank entirely
+    with a "Creator of NCGS" god-tier when it's literally "Infinity"."""
+    user_result = supabase.table("users").select("extra_point").eq("id", user_id).execute()
+    extra_point_text = user_result.data[0]["extra_point"] if user_result.data else None
+    extra_points, godly = parse_extra_points(extra_point_text)
+
     stories_result = supabase.table("stories").select("id").eq("writer", user_id).execute()
     story_ids = [s["id"] for s in (stories_result.data or [])]
 
     if not story_ids:
-        return {"points": 0, "likes": 0, "comments": 0}
+        return {"points": extra_points, "likes": 0, "comments": 0, "godly": godly}
 
     likes_result = (
         supabase.table("likes_story")
@@ -270,8 +313,8 @@ def compute_writer_points(user_id):
             unique_commenters_per_story.add((row["story"], row["user"]))
     comments_count = len(unique_commenters_per_story)
 
-    points = likes_count * POINTS_PER_LIKE + comments_count * POINTS_PER_COMMENT
-    return {"points": points, "likes": likes_count, "comments": comments_count}
+    points = likes_count * POINTS_PER_LIKE + comments_count * POINTS_PER_COMMENT + extra_points
+    return {"points": points, "likes": likes_count, "comments": comments_count, "godly": godly}
 
 
 def sanitize_search_term(term):
@@ -304,6 +347,13 @@ def profile():
     if "user_id" not in session:
         return redirect("/auth")
     return render_template('profile.html')
+
+
+@app.route('/favorites')
+def favorites_page():
+    if "user_id" not in session:
+        return redirect("/auth")
+    return render_template('favorites.html')
 
 
 @app.route('/write')
@@ -697,7 +747,7 @@ def get_profile():
     result.data.setdefault("hide_mild_warnings", False)
 
     stats = compute_writer_points(session["user_id"])
-    result.data["rank_info"] = rank_for_points(stats["points"])
+    result.data["rank_info"] = rank_for_points(stats["points"], stats.get("godly", False))
     result.data["rank_info"]["likes_received"] = stats["likes"]
     result.data["rank_info"]["comments_received"] = stats["comments"]
 
@@ -740,7 +790,7 @@ def get_user_profile(username):
     )
 
     stats = compute_writer_points(user_row["id"])
-    rank_info = rank_for_points(stats["points"])
+    rank_info = rank_for_points(stats["points"], stats.get("godly", False))
     rank_info["likes_received"] = stats["likes"]
     rank_info["comments_received"] = stats["comments"]
 
@@ -1144,7 +1194,7 @@ def post_comment(story):
             "username": session.get("username"),
             "nickname": None,
             "avatar_url": session.get("avatar_url"),
-            "rank_info": rank_for_points(own_stats["points"])
+            "rank_info": rank_for_points(own_stats["points"], own_stats.get("godly", False))
         }
     })
 
@@ -1222,6 +1272,222 @@ def like_story(story):
     count = count_result.count or 0
 
     return jsonify({"liked": liked, "count": count})
+
+
+@app.route("/api/getfavorite/<story>")
+def get_favorite_status(story):
+    """Whether the current user has favorited this story, plus the
+    total favorite count. Logged-out users just get the count."""
+    count_result = supabase.table("favorites").select("story", count="exact").eq("story", story).execute()
+    count = count_result.count or 0
+
+    favorited = False
+    if "user_id" in session:
+        favorited_result = (
+            supabase.table("favorites")
+            .select("story")
+            .eq("story", story)
+            .eq("user", session["user_id"])
+            .execute()
+        )
+        favorited = bool(favorited_result.data)
+
+    return jsonify({"count": count, "favorited": favorited})
+
+
+@app.route("/api/favoritestory/<story>", methods=["POST"])
+def favorite_story(story):
+    """Toggles the current user's favorite on a story - favorites it if
+    they hadn't, unfavorites it if they had. Mirrors like_story."""
+    if "user_id" not in session:
+        return jsonify({"error": "Must be logged in"}), 401
+
+    story_result = supabase.table("stories").select("id").eq("id", story).execute()
+    if not story_result.data:
+        return jsonify({"error": "Story not found"}), 404
+
+    existing = (
+        supabase.table("favorites")
+        .select("story")
+        .eq("story", story)
+        .eq("user", session["user_id"])
+        .execute()
+    )
+
+    if existing.data:
+        supabase.table("favorites").delete().eq("story", story).eq("user", session["user_id"]).execute()
+        favorited = False
+    else:
+        supabase.table("favorites").insert({
+            "user": session["user_id"],
+            "story": story
+        }).execute()
+        favorited = True
+
+    count_result = supabase.table("favorites").select("story", count="exact").eq("story", story).execute()
+    count = count_result.count or 0
+
+    return jsonify({"favorited": favorited, "count": count})
+
+
+@app.route("/api/myfavorites")
+def my_favorites():
+    """Lists the current user's favorited stories, most recently
+    favorited first - for a 'My Favorites' page."""
+    if "user_id" not in session:
+        return jsonify({"error": "Must be logged in"}), 401
+
+    favorites_result = (
+        supabase.table("favorites")
+        .select("story, created_at")
+        .eq("user", session["user_id"])
+        .order("created_at", desc=True)
+        .execute()
+    )
+    favorite_rows = favorites_result.data or []
+    story_ids = [row["story"] for row in favorite_rows]
+
+    if not story_ids:
+        return jsonify({"stories": []})
+
+    stories_result = supabase.table("stories").select("*").in_("id", story_ids).execute()
+    stories_by_id = {s["id"]: s for s in (stories_result.data or [])}
+    stories = attach_like_counts([stories_by_id[sid] for sid in story_ids if sid in stories_by_id])
+
+    return jsonify({"stories": stories})
+
+
+@app.route("/api/getbookmark/<story>")
+def get_bookmark_status(story):
+    """Whether the current user has bookmarked a specific chapter of
+    this story. Pass ?chapter=N (required)."""
+    if "user_id" not in session:
+        return jsonify({"bookmarked": False})
+
+    chapter = request.args.get("chapter")
+    try:
+        chapter = int(chapter)
+    except (TypeError, ValueError):
+        return jsonify({"error": "Chapter must be a whole number"}), 400
+
+    result = (
+        supabase.table("bookmarks")
+        .select("story")
+        .eq("story", story)
+        .eq("chapter", chapter)
+        .eq("user", session["user_id"])
+        .execute()
+    )
+    return jsonify({"bookmarked": bool(result.data)})
+
+
+@app.route("/api/getstorybookmarks/<story>")
+def get_story_bookmarks(story):
+    """All of the current user's bookmarked chapter numbers within this
+    one story, sorted ascending - for the bookmarked-chapters list on
+    the story page. Lighter than /api/mybookmarks, which joins in full
+    story data across every story."""
+    if "user_id" not in session:
+        return jsonify({"chapters": []})
+
+    result = (
+        supabase.table("bookmarks")
+        .select("chapter")
+        .eq("story", story)
+        .eq("user", session["user_id"])
+        .execute()
+    )
+    chapters = sorted({row["chapter"] for row in (result.data or [])})
+    return jsonify({"chapters": chapters})
+
+
+@app.route("/api/togglebookmark/<story>", methods=["POST"])
+def toggle_bookmark(story):
+    """Toggles the current user's bookmark on a specific chapter -
+    bookmarks it if they hadn't, un-bookmarks it if they had. Unlike
+    favorites/likes, a user can hold several bookmarks per story since
+    each one targets a different chapter."""
+    if "user_id" not in session:
+        return jsonify({"error": "Must be logged in"}), 401
+
+    data = request.get_json(silent=True) or {}
+    chapter = data.get("chapter")
+    try:
+        chapter = int(chapter)
+    except (TypeError, ValueError):
+        return jsonify({"error": "Chapter must be a whole number"}), 400
+    if chapter < 1:
+        return jsonify({"error": "Chapter must be positive"}), 400
+
+    story_result = supabase.table("stories").select("id").eq("id", story).execute()
+    if not story_result.data:
+        return jsonify({"error": "Story not found"}), 404
+
+    existing = (
+        supabase.table("bookmarks")
+        .select("story")
+        .eq("story", story)
+        .eq("chapter", chapter)
+        .eq("user", session["user_id"])
+        .execute()
+    )
+
+    if existing.data:
+        (
+            supabase.table("bookmarks")
+            .delete()
+            .eq("story", story)
+            .eq("chapter", chapter)
+            .eq("user", session["user_id"])
+            .execute()
+        )
+        bookmarked = False
+    else:
+        supabase.table("bookmarks").insert({
+            "user": session["user_id"],
+            "story": story,
+            "chapter": chapter
+        }).execute()
+        bookmarked = True
+
+    return jsonify({"bookmarked": bookmarked})
+
+
+@app.route("/api/mybookmarks")
+def my_bookmarks():
+    """Lists the current user's bookmarked chapters, most recently
+    bookmarked first - for a 'My Bookmarks' page. A story can appear
+    more than once if multiple chapters of it are bookmarked."""
+    if "user_id" not in session:
+        return jsonify({"error": "Must be logged in"}), 401
+
+    bookmarks_result = (
+        supabase.table("bookmarks")
+        .select("story, chapter, created_at")
+        .eq("user", session["user_id"])
+        .order("created_at", desc=True)
+        .execute()
+    )
+    bookmark_rows = bookmarks_result.data or []
+
+    story_ids = list({row["story"] for row in bookmark_rows})
+    stories_by_id = {}
+    if story_ids:
+        stories_result = supabase.table("stories").select("*").in_("id", story_ids).execute()
+        stories_by_id = {s["id"]: s for s in (stories_result.data or [])}
+
+    bookmarks = []
+    for row in bookmark_rows:
+        story_row = stories_by_id.get(row["story"])
+        if not story_row:
+            continue
+        bookmarks.append({
+            "chapter": row["chapter"],
+            "created_at": row["created_at"],
+            "story": story_row
+        })
+
+    return jsonify({"bookmarks": bookmarks})
 
 
 @app.route("/api/deletestory/<story>", methods=["POST"])

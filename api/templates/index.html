@@ -103,7 +103,7 @@
                     fallback.textContent = initial;
                     wrap.appendChild(fallback);
                     slot.appendChild(wrap);
-                    applyAvatarEffect(wrap, (writer.rank_info && writer.rank_info.rank) || 'Newcomer');
+                    applyAvatarEffect(wrap, (writer.rank_info && writer.rank_info.rank) || 'Newcomer', { compact: true });
                     return slot;
                 })();
             card.querySelector('.story-header').prepend(avatarSlot);

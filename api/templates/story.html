@@ -12,6 +12,11 @@
             <span class="like-icon" aria-hidden="true">♡</span>
             <span id="like-count">0</span>
         </button>
+        <button id="favorite-story-btn" class="favorite-btn" type="button" aria-pressed="false">
+            <span class="favorite-icon" aria-hidden="true">☆</span>
+            <span id="favorite-label">Favorite</span>
+            <span id="favorite-count">0</span>
+        </button>
     </div>
 
     <div id="content-warning-overlay" class="content-warning-overlay" hidden>
@@ -33,6 +38,15 @@
         <select id="chapter-select" disabled>
             <option value="">Loading chapters…</option>
         </select>
+        <button id="bookmark-chapter-btn" class="bookmark-btn" type="button" aria-pressed="false" hidden>
+            <span class="bookmark-icon" aria-hidden="true">⚐</span>
+            <span id="bookmark-label">Bookmark Chapter</span>
+        </button>
+    </div>
+
+    <div id="bookmarked-chapters" class="bookmarked-chapters" hidden>
+        <span class="bookmarked-chapters-label">Bookmarked:</span>
+        <div id="bookmarked-chapters-list" class="bookmarked-chapters-list"></div>
     </div>
 
     <div id="chapter-content" class="chapter-content">
@@ -123,6 +137,51 @@
         } finally {
             likeInFlight = false;
             likeBtn.disabled = false;
+        }
+    });
+
+    const favoriteBtn = document.getElementById('favorite-story-btn');
+    const favoriteIconEl = favoriteBtn.querySelector('.favorite-icon');
+    const favoriteCountEl = document.getElementById('favorite-count');
+    let favoriteInFlight = false;
+
+    function setFavoriteState(favorited, count) {
+        favoriteBtn.classList.toggle('favorited', favorited);
+        favoriteBtn.setAttribute('aria-pressed', favorited ? 'true' : 'false');
+        favoriteIconEl.textContent = favorited ? '★' : '☆';
+        favoriteCountEl.textContent = String(count);
+    }
+
+    async function loadFavoriteStatus() {
+        try {
+            const res = await fetch(`/api/getfavorite/${encodeURIComponent(storyId)}`);
+            if (!res.ok) throw new Error('Failed to load favorite status');
+            const data = await res.json();
+            setFavoriteState(!!data.favorited, data.count || 0);
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    favoriteBtn.addEventListener('click', async () => {
+        if (!isLoggedIn) {
+            redirectTo('/auth');
+            return;
+        }
+        if (favoriteInFlight) return;
+
+        favoriteInFlight = true;
+        favoriteBtn.disabled = true;
+        try {
+            const res = await fetch(`/api/favoritestory/${encodeURIComponent(storyId)}`, { method: 'POST' });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Could not update favorite');
+            setFavoriteState(!!data.favorited, data.count || 0);
+        } catch (err) {
+            console.error(err);
+        } finally {
+            favoriteInFlight = false;
+            favoriteBtn.disabled = false;
         }
     });
 
@@ -531,6 +590,7 @@
             contentEl.innerHTML = marked.parse(stripChapterTag(data.content));
             currentChapterGlobalNum = index + 1; // matches the "Chapter N" label
             if (commentMode === 'chapter') refreshComments();
+            updateBookmarkButton();
         } catch (err) {
             contentEl.innerHTML = '<p class="stories-status">Couldn\'t load this chapter right now.</p>';
             console.error(err);
@@ -541,6 +601,91 @@
             nextBtn.disabled = currentIndex >= chapterList.length - 1;
         }
     }
+
+    // ----- Bookmarks (per-chapter, multiple allowed per story) -----
+
+    const bookmarkBtn = document.getElementById('bookmark-chapter-btn');
+    const bookmarkLabelEl = document.getElementById('bookmark-label');
+    const bookmarkedChaptersEl = document.getElementById('bookmarked-chapters');
+    const bookmarkedChaptersListEl = document.getElementById('bookmarked-chapters-list');
+    let bookmarkedChapterNums = new Set();
+    let bookmarkInFlight = false;
+
+    function setBookmarkButtonState(bookmarked) {
+        bookmarkBtn.classList.toggle('bookmarked', bookmarked);
+        bookmarkBtn.setAttribute('aria-pressed', bookmarked ? 'true' : 'false');
+        bookmarkBtn.querySelector('.bookmark-icon').textContent = bookmarked ? '⚑' : '⚐';
+        bookmarkLabelEl.textContent = bookmarked ? 'Bookmarked' : 'Bookmark Chapter';
+    }
+
+    function renderBookmarkedChaptersList() {
+        if (!isLoggedIn || bookmarkedChapterNums.size === 0) {
+            bookmarkedChaptersEl.hidden = true;
+            return;
+        }
+        bookmarkedChaptersEl.hidden = false;
+        bookmarkedChaptersListEl.innerHTML = '';
+        Array.from(bookmarkedChapterNums).sort((a, b) => a - b).forEach(num => {
+            const chip = document.createElement('button');
+            chip.type = 'button';
+            chip.className = 'bookmarked-chapter-chip';
+            if (num === currentChapterGlobalNum) chip.classList.add('active');
+            chip.textContent = `Ch. ${num}`;
+            chip.addEventListener('click', () => loadChapterByIndex(num - 1));
+            bookmarkedChaptersListEl.appendChild(chip);
+        });
+    }
+
+    function updateBookmarkButton() {
+        if (!isLoggedIn || currentChapterGlobalNum === null) {
+            bookmarkBtn.hidden = true;
+            return;
+        }
+        bookmarkBtn.hidden = false;
+        setBookmarkButtonState(bookmarkedChapterNums.has(currentChapterGlobalNum));
+        renderBookmarkedChaptersList();
+    }
+
+    async function loadStoryBookmarks() {
+        if (!isLoggedIn) return;
+        try {
+            const res = await fetch(`/api/getstorybookmarks/${encodeURIComponent(storyId)}`);
+            if (!res.ok) throw new Error('Failed to load bookmarks');
+            const data = await res.json();
+            bookmarkedChapterNums = new Set(data.chapters || []);
+            updateBookmarkButton();
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    bookmarkBtn.addEventListener('click', async () => {
+        if (!isLoggedIn || currentChapterGlobalNum === null || bookmarkInFlight) return;
+
+        bookmarkInFlight = true;
+        bookmarkBtn.disabled = true;
+        try {
+            const res = await fetch(`/api/togglebookmark/${encodeURIComponent(storyId)}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ chapter: currentChapterGlobalNum })
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Could not update bookmark');
+
+            if (data.bookmarked) {
+                bookmarkedChapterNums.add(currentChapterGlobalNum);
+            } else {
+                bookmarkedChapterNums.delete(currentChapterGlobalNum);
+            }
+            updateBookmarkButton();
+        } catch (err) {
+            console.error(err);
+        } finally {
+            bookmarkInFlight = false;
+            bookmarkBtn.disabled = false;
+        }
+    });
 
     // Every section/heading in a chapter file is prefixed with a custom tag
     // like "[phase-1-the-horror-begins]## Phase 1: The Horror Begins" - one
@@ -870,5 +1015,7 @@
     loadStoryInfo();
     loadStoryChapters();
     loadLikes();
+    loadFavoriteStatus();
+    loadStoryBookmarks();
 </script>
 {% endblock %}

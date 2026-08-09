@@ -14,12 +14,16 @@ const RANK_COLORS = {
     "The Specialist": "#f4511e",
     "The Plot Bender": "#d81b60",
     "Genre-Defining": "#3949ab",
-    "NCGS Icon": "linear-gradient(135deg, #ffd54f, #ff8f00)"
+    "NCGS Icon": "linear-gradient(135deg, #ffd54f, #ff8f00)",
+    "Creator of NCGS": "linear-gradient(135deg, #ff004c, #ffd54f, #00e5ff, #7c4dff, #ff004c)"
 };
 
 // Avatar special effect per rank - escalates with rank, matching the CSS
 // classes defined in style.css. Aspiring Writer (and the implicit
-// Newcomer tier below it) intentionally get no effect.
+// Newcomer tier below it) intentionally get no effect. "Creator of
+// NCGS" is a one-off god-tier above NCGS Icon, reserved for whoever has
+// users.extra_point literally set to "Infinity" - every layer used by
+// every rank below is present here, plus more, at full intensity.
 const RANK_EFFECTS = {
     "Newcomer": "rank-fx-none",
     "Aspiring Writer": "rank-fx-none",
@@ -30,7 +34,8 @@ const RANK_EFFECTS = {
     "The Specialist": "rank-fx-sparkle",
     "The Plot Bender": "rank-fx-aurora",
     "Genre-Defining": "rank-fx-radiant",
-    "NCGS Icon": "rank-fx-heavenly"
+    "NCGS Icon": "rank-fx-heavenly",
+    "Creator of NCGS": "rank-fx-godly"
 };
 
 const ORBIT_LETTERS = ["N", "C", "G", "S"];
@@ -82,7 +87,7 @@ function renderRankBadge(container, rankInfo) {
 
     container.innerHTML = `
         <div class="rank-badge">
-            <span class="rank-pill" style="background:${color}" title="${rankInfo.points} points">${escapeRankHtml(rankInfo.rank)}</span>
+            <span class="rank-pill${rankInfo.rank === "Creator of NCGS" ? " rank-pill--godly" : ""}" style="background:${color}" title="${rankInfo.points} points">${escapeRankHtml(rankInfo.rank)}</span>
             <div class="rank-progress-wrap">
                 <div class="rank-progress-track">
                     <div class="rank-progress-fill" style="width:${progressPct}%; background:${color}"></div>
@@ -132,12 +137,28 @@ function spawnParticles(wrapEl, count, className, opts) {
  *
  * Effects escalate in detail with rank: World Builder's slim ring is the
  * simplest, each subsequent rank layers on more (facets, orbiting
- * glyphs, sparks, motes, rays), and NCGS Icon - the top rank - combines
- * a deeply blurred multi-stop halo, a rotating glow ring, a full field
- * of radiant rays, drifting gold stardust, and "NCGS" orbiting overhead.
+ * glyphs, sparks, motes, rays), NCGS Icon - the top earnable rank -
+ * combines a deeply blurred multi-stop halo, a rotating glow ring, a
+ * full field of radiant rays, drifting gold stardust, and "NCGS"
+ * orbiting overhead, and Creator of NCGS - a one-off god tier above
+ * that - doubles nearly all of it up in rainbow instead of gold/blue,
+ * adding a second halo layer, a counter-rotating ray field, a wider
+ * twinkling starfield, pulsing sonar rings, four lens flares, and a
+ * crown - with its identifying text sitting still and readable under
+ * the avatar instead of spinning past too fast to read.
+ *
+ * `opts.compact` trims the Creator of NCGS effect down to its essentials
+ * (the base rainbow halo/ring, one small ray field, a few motes) for
+ * contexts where a dozen tiny avatars render on screen at once - story
+ * cards, comments - so the page doesn't drown in flares/starfields/
+ * labels. It still reads as unmistakably the same effect, just quieter.
+ * Every other rank ignores this flag. buildAvatarFx() (used for cards
+ * and comments) always passes it; direct applyAvatarEffect() calls on
+ * profile pages leave it off and get the full version.
  */
-function applyAvatarEffect(wrapEl, rankName) {
+function applyAvatarEffect(wrapEl, rankName, opts) {
     if (!wrapEl) return;
+    const compact = !!(opts && opts.compact);
 
     Object.values(RANK_EFFECTS).forEach(cls => wrapEl.classList.remove(cls));
     wrapEl.querySelectorAll(".rank-fx-gen, .orbit-letter").forEach(el => el.remove());
@@ -199,6 +220,95 @@ function applyAvatarEffect(wrapEl, rankName) {
             });
             break;
         }
+
+        case "rank-fx-godly": {
+            // Creator of NCGS - the one-off god tier. The base rainbow
+            // halo + rotating ring (::before/::after in style.css) is
+            // always present since it comes from the effect class
+            // itself; everything below is the JS-generated detail that
+            // scales with `compact`.
+            if (compact) {
+                // Quieter version for story cards/comments: one halo,
+                // one small ray field, a handful of motes. Same colors
+                // and the same base rings, just without the starfield,
+                // sonar pings, lens flares, crown, or label - so a row
+                // of a dozen tiny avatars doesn't turn into visual noise.
+                const halo = document.createElement("span");
+                halo.className = "rank-fx-gen fx-halo-core fx-halo-core--godly";
+                wrapEl.appendChild(halo);
+
+                const rayField = document.createElement("div");
+                rayField.className = "rank-fx-gen fx-ray-field";
+                wrapEl.appendChild(rayField);
+                spawnParticles(rayField, 5, "fx-ray fx-ray--godly", { period: 2.6, angleJitter: 0, length: "26px" });
+
+                spawnParticles(wrapEl, 4, "fx-mote fx-mote--godly", { radius: "-36px", period: 3.2, size: "4px" });
+                break;
+            }
+
+            // Full version (profile pages): everything the heavenly
+            // effect has, doubled up and in rainbow instead of
+            // gold/blue: two halo layers, two counter-rotating rings,
+            // two ray fields spinning opposite directions, a denser
+            // stardust field, twinkling background stars, pulsing
+            // "sonar ping" rings, four lens-flare bursts at the
+            // diagonals, and a pulsing crown up top. Unlike every other
+            // rank, the identifying text isn't spun around the avatar
+            // where it's illegible mid-motion - it sits underneath as a
+            // plain, readable, gently-glowing label instead.
+            const outerHalo = document.createElement("span");
+            outerHalo.className = "rank-fx-gen fx-halo-core fx-halo-core--godly-outer";
+            wrapEl.appendChild(outerHalo);
+
+            const halo = document.createElement("span");
+            halo.className = "rank-fx-gen fx-halo-core fx-halo-core--godly";
+            wrapEl.appendChild(halo);
+
+            const rayFieldA = document.createElement("div");
+            rayFieldA.className = "rank-fx-gen fx-ray-field";
+            wrapEl.appendChild(rayFieldA);
+            spawnParticles(rayFieldA, 10, "fx-ray fx-ray--godly", { period: 2.6, angleJitter: 0, length: "34px" });
+
+            const rayFieldB = document.createElement("div");
+            rayFieldB.className = "rank-fx-gen fx-ray-field fx-ray-field--reverse";
+            wrapEl.appendChild(rayFieldB);
+            spawnParticles(rayFieldB, 6, "fx-ray fx-ray--godly-alt", { period: 3.4, angleJitter: 0, length: "22px" });
+
+            spawnParticles(wrapEl, 8, "fx-mote fx-mote--godly", { radius: "-40px", period: 3.2, size: "5px" });
+
+            // A wider, sparser field of tiny twinkling stars, scattered
+            // further out than the motes so the whole thing reads as a
+            // starfield rather than a repeat of the same ring.
+            spawnParticles(wrapEl, 10, "fx-godly-star", { radius: "-52px", period: 2.2, angleJitter: 12, text: "\u2726" });
+
+            // Two "sonar ping" rings, staggered so one is always mid-pulse.
+            const ping1 = document.createElement("span");
+            ping1.className = "rank-fx-gen fx-godly-ping";
+            wrapEl.appendChild(ping1);
+            const ping2 = document.createElement("span");
+            ping2.className = "rank-fx-gen fx-godly-ping fx-godly-ping--delay";
+            wrapEl.appendChild(ping2);
+
+            // Four lens-flare bursts at the diagonals.
+            [45, 135, 225, 315].forEach((angle, i) => {
+                const flare = document.createElement("span");
+                flare.className = "rank-fx-gen fx-godly-flare";
+                flare.style.setProperty("--fx-angle", `${angle}deg`);
+                flare.style.setProperty("--fx-delay", `${(i * 0.4).toFixed(2)}s`);
+                wrapEl.appendChild(flare);
+            });
+
+            const crown = document.createElement("span");
+            crown.className = "rank-fx-gen fx-godly-crown";
+            crown.textContent = "\u2726";
+            wrapEl.appendChild(crown);
+
+            const label = document.createElement("span");
+            label.className = "rank-fx-gen fx-godly-label";
+            label.textContent = "Creator of NCGS";
+            wrapEl.appendChild(label);
+            break;
+        }
     }
 }
 
@@ -215,7 +325,9 @@ function applyAvatarEffect(wrapEl, rankName) {
  *   /api/getcomments now attach (falls back to no effect if absent).
  * `opts.sizeClass` - a compact-size modifier from style.css, e.g.
  *   "avatar-fx-slot--card" or "avatar-fx-slot--comment". Omit for the
- *   full 64px size used on profile pages.
+ *   full 64px size used on profile pages. Also determines whether the
+ *   Creator of NCGS effect renders in its full or compact form (see
+ *   applyAvatarEffect) - passing a sizeClass implies a compact context.
  * `opts.imgClass` - CSS class for the `<img>` itself (defaults to
  *   "avatar-fx-img"); pass the page's existing avatar class to inherit
  *   its object-fit/background styling.
@@ -241,7 +353,7 @@ function buildAvatarFx(writer, opts) {
     }, { once: true });
     wrap.appendChild(img);
 
-    applyAvatarEffect(wrap, (writer.rank_info && writer.rank_info.rank) || "Newcomer");
+    applyAvatarEffect(wrap, (writer.rank_info && writer.rank_info.rank) || "Newcomer", { compact: !!opts.sizeClass });
 
     return slot;
 }

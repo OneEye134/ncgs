@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}My Favorites — No Cap, Good Story{% endblock %}
+
+{% block content %}
+    <section class="stories-section">
+        <div class="stories-section-header">
+            <h2>My Favorites</h2>
+        </div>
+        <div id="stories-list" class="stories-grid">
+            <p class="stories-status">Loading favorites…</p>
+        </div>
+    </section>
+{% endblock %}
+
+{% block extra_script %}
+<script src="{{ url_for('static', filename='js/rank.js') }}"></script>
+<script>
+    const listEl = document.getElementById('stories-list');
+
+    function renderStories(stories, emptyMessage) {
+        if (!stories || stories.length === 0) {
+            listEl.innerHTML = `<p class="stories-status">${escapeHtml(emptyMessage)}</p>`;
+            return;
+        }
+
+        listEl.innerHTML = '';
+        stories.forEach(story => {
+            const writer = story.users || {};
+            const authorName = writer.nickname || writer.username || 'Unknown';
+            const initial = authorName.trim().charAt(0).toUpperCase() || '?';
+            const date = story.created_at
+                ? new Date(story.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
+                : '';
+            const authorHtml = writer.username
+                ? `<a href="/profile/${encodeURIComponent(writer.username)}" class="author-link">${escapeHtml(authorName)}</a>`
+                : escapeHtml(authorName);
+            const likes = story.likes || 0;
+            const chapterCount = story.chapter_count || 0;
+            const chaptersHtml = chapterCount > 0
+                ? `Season ${story.season} &middot; Chapter ${chapterCount}`
+                : 'No chapters yet';
+
+            const card = document.createElement('div');
+            card.className = 'story-block';
+            card.innerHTML = `
+                <div class="story-header">
+                    <div>
+                        <h3>${escapeHtml(story.title)}</h3>
+                        <p class="story-meta">By ${authorHtml}${date ? ' &middot; ' + date : ''} &middot; <span class="story-card-likes">&hearts; ${likes}</span></p>
+                        <p class="story-meta story-card-chapters">${chaptersHtml}</p>
+                    </div>
+                </div>
+                <p>${escapeHtml(story.description || '')}</p>
+                <button class="read-story-btn">Read the Story</button>
+            `;
+
+            const avatarSlot = writer.avatar_url
+                ? buildAvatarFx(writer, { sizeClass: 'avatar-fx-slot--card', imgClass: 'story-avatar-img' })
+                : (() => {
+                    const slot = document.createElement('div');
+                    slot.className = 'avatar-fx-slot avatar-fx-slot--card';
+                    const wrap = document.createElement('div');
+                    wrap.className = 'avatar-fx-wrap';
+                    const fallback = document.createElement('div');
+                    fallback.className = 'story-avatar';
+                    fallback.textContent = initial;
+                    wrap.appendChild(fallback);
+                    slot.appendChild(wrap);
+                    applyAvatarEffect(wrap, (writer.rank_info && writer.rank_info.rank) || 'Newcomer', { compact: true });
+                    return slot;
+                })();
+            card.querySelector('.story-header').prepend(avatarSlot);
+
+            card.querySelector('.read-story-btn').addEventListener('click', () => {
+                redirectTo('/story/' + story.id);
+            });
+            listEl.appendChild(card);
+        });
+    }
+
+    async function loadFavorites() {
+        try {
+            const res = await fetch('/api/myfavorites');
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Failed to fetch favorites');
+            renderStories(data.stories, "You haven't favorited any stories yet.");
+        } catch (err) {
+            listEl.innerHTML = '<p class="stories-status">Couldn\'t load favorites right now.</p>';
+            console.error(err);
+        }
+    }
+
+    function escapeHtml(str) {
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+
+    loadFavorites();
+</script>
+{% endblock %}

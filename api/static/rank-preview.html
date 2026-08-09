@@ -32,13 +32,35 @@
         color: var(--text-muted);
         text-align: center;
     }
+    .preview-section h3 {
+        margin-bottom: 4px;
+    }
+    .preview-section p {
+        margin-top: 0;
+        color: var(--text-muted);
+        font-size: 0.9em;
+    }
+    .compact-cell .profile-avatar {
+        width: 36px;
+        height: 36px;
+    }
 </style>
 </head>
 <body>
     <h2>Rank avatar effects</h2>
     <p style="color:var(--text-muted)">Every rank, rendered live with the real CSS/JS - no server or account needed. Open this file directly, or run the app and visit <code>/static/rank-preview.html</code>.</p>
 
-    <div class="preview-grid" id="grid"></div>
+    <div class="preview-section">
+        <h3>Full detail (profile pages)</h3>
+        <p>What <code>applyAvatarEffect(wrap, rank)</code> renders on profile.html / public_profile.html.</p>
+        <div class="preview-grid" id="grid-full"></div>
+    </div>
+
+    <div class="preview-section" style="margin-top:40px;">
+        <h3>Compact (story cards / comments)</h3>
+        <p>What <code>buildAvatarFx()</code> renders everywhere else via <code>{ compact: true }</code> - only Creator of NCGS differs from the full version above; every other rank is identical either way.</p>
+        <div class="preview-grid" id="grid-compact"></div>
+    </div>
 
     <script src="js/rank.js"></script>
     <script>
@@ -52,25 +74,30 @@
             "The Specialist",
             "The Plot Bender",
             "Genre-Defining",
-            "NCGS Icon"
+            "NCGS Icon",
+            "Creator of NCGS"
         ];
 
-        const grid = document.getElementById('grid');
+        function buildGrid(gridId, compact) {
+            const grid = document.getElementById(gridId);
+            RANK_ORDER.forEach(rank => {
+                const cell = document.createElement('div');
+                cell.className = 'preview-cell' + (compact ? ' compact-cell' : '');
+                cell.innerHTML = `
+                    <div class="avatar-fx-wrap">
+                        <div class="profile-avatar"></div>
+                    </div>
+                    <label>${rank}</label>
+                `;
+                grid.appendChild(cell);
 
-        RANK_ORDER.forEach(rank => {
-            const cell = document.createElement('div');
-            cell.className = 'preview-cell';
-            cell.innerHTML = `
-                <div class="avatar-fx-wrap">
-                    <div class="profile-avatar"></div>
-                </div>
-                <label>${rank}</label>
-            `;
-            grid.appendChild(cell);
+                const wrap = cell.querySelector('.avatar-fx-wrap');
+                applyAvatarEffect(wrap, rank, { compact });
+            });
+        }
 
-            const wrap = cell.querySelector('.avatar-fx-wrap');
-            applyAvatarEffect(wrap, rank);
-        });
+        buildGrid('grid-full', false);
+        buildGrid('grid-compact', true);
     </script>
 </body>
 </html>
