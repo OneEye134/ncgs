@@ -62,6 +62,7 @@
 
 {% block extra_script %}
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="{{ url_for('static', filename='js/rank.js') }}"></script>
 <script>
     const storyId = {{ story_id | tojson }};
     const isLoggedIn = {{ (session.get('username') is not none) | tojson }};
@@ -568,15 +569,6 @@
     const modeChapterBtn = document.getElementById('mode-chapter-btn');
     const modeStoryBtn = document.getElementById('mode-story-btn');
 
-    const DEFAULT_AVATAR =
-        'data:image/svg+xml;utf8,' + encodeURIComponent(
-            '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40">' +
-            '<circle cx="20" cy="20" r="20" fill="%23ccc"/>' +
-            '<circle cx="20" cy="16" r="7" fill="%23fff"/>' +
-            '<path d="M6 36c0-9 6-14 14-14s14 5 14 14" fill="%23fff"/>' +
-            '</svg>'
-        );
-
     function timeAgo(isoString) {
         const then = new Date(isoString).getTime();
         const seconds = Math.max(0, Math.floor((Date.now() - then) / 1000));
@@ -591,18 +583,6 @@
         return 'just now';
     }
 
-    function buildAvatar(writer) {
-        const img = document.createElement('img');
-        img.className = 'comment-avatar';
-        img.alt = '';
-        img.src = writer.avatar_url || DEFAULT_AVATAR;
-        // Falls back if avatar_url is set but broken/unreachable
-        img.addEventListener('error', () => {
-            img.src = DEFAULT_AVATAR;
-        }, { once: true });
-        return img;
-    }
-
     function renderComments(comments, onDeleted) {
         commentsListEl.innerHTML = '';
 
@@ -614,14 +594,36 @@
             return;
         }
 
-        for (const comment of comments) {
+        // Comments come back flat. `comment` points at a reply's thread
+        // root (null for top-level comments); `reply` points at the
+        // specific comment/reply being directly answered. Group replies
+        // under their root here so top-level comments render with their
+        // whole thread indented beneath them.
+        const byId = new Map();
+        for (const c of comments) byId.set(c.id, c);
+
+        const topLevel = [];
+        const repliesByRoot = new Map();
+        for (const c of comments) {
+            if (!c.comment) {
+                topLevel.push(c);
+            } else {
+                if (!repliesByRoot.has(c.comment)) repliesByRoot.set(c.comment, []);
+                repliesByRoot.get(c.comment).push(c);
+            }
+        }
+
+        function renderOne(comment, isReply) {
             const writer = comment.users || {};
             const authorName = writer.nickname || writer.username || 'Unknown';
 
             const item = document.createElement('div');
-            item.className = 'comment-item';
+            item.className = 'comment-item' + (isReply ? ' comment-item--reply' : '');
 
-            const avatar = buildAvatar(writer);
+            const avatar = buildAvatarFx(writer, {
+                sizeClass: 'avatar-fx-slot--comment',
+                imgClass: 'comment-avatar'
+            });
 
             const body = document.createElement('div');
             body.className = 'comment-body';
@@ -630,12 +632,40 @@
             meta.className = 'comment-meta';
             meta.textContent = `${authorName} · ${timeAgo(comment.created_at)}`;
 
+            // For a reply that isn't directly answering the thread root,
+            // show who it's actually replying to.
+            if (isReply && comment.reply && comment.reply !== comment.comment) {
+                const target = byId.get(comment.reply);
+                if (target) {
+                    const targetWriter = target.users || {};
+                    const targetName = targetWriter.nickname || targetWriter.username || 'Unknown';
+                    const replyingTo = document.createElement('p');
+                    replyingTo.className = 'comment-replying-to';
+                    replyingTo.textContent = `Replying to ${targetName}`;
+                    body.appendChild(replyingTo);
+                }
+            }
+
             const text = document.createElement('p');
             text.className = 'comment-text';
             text.textContent = comment.text;
 
             body.appendChild(meta);
             body.appendChild(text);
+
+            const actions = document.createElement('div');
+            actions.className = 'comment-actions';
+
+            if (isLoggedIn) {
+                const replyBtn = document.createElement('button');
+                replyBtn.type = 'button';
+                replyBtn.className = 'comment-reply-btn';
+                replyBtn.textContent = 'Reply';
+                replyBtn.addEventListener('click', () => {
+                    toggleReplyForm(body, comment, onDeleted);
+                });
+                actions.appendChild(replyBtn);
+            }
 
             if (isLoggedIn && comment.user === currentUserId) {
                 const deleteLink = document.createElement('button');
@@ -655,13 +685,87 @@
                         deleteLink.disabled = false;
                     }
                 });
-                body.appendChild(deleteLink);
+                actions.appendChild(deleteLink);
             }
 
+            body.appendChild(actions);
             item.appendChild(avatar);
             item.appendChild(body);
-            commentsListEl.appendChild(item);
+            return item;
         }
+
+        for (const comment of topLevel) {
+            commentsListEl.appendChild(renderOne(comment, false));
+
+            const replies = (repliesByRoot.get(comment.id) || [])
+                .slice()
+                .sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+
+            if (replies.length) {
+                const thread = document.createElement('div');
+                thread.className = 'comment-thread';
+                for (const reply of replies) {
+                    thread.appendChild(renderOne(reply, true));
+                }
+                commentsListEl.appendChild(thread);
+            }
+        }
+    }
+
+    function toggleReplyForm(afterEl, targetComment, onPosted) {
+        const existing = afterEl.querySelector('.comment-reply-form');
+        if (existing) {
+            existing.remove();
+            return;
+        }
+
+        // Close any other open reply forms so only one is open at a time
+        document.querySelectorAll('.comment-reply-form').forEach(f => f.remove());
+
+        const form = document.createElement('form');
+        form.className = 'comment-form comment-reply-form';
+
+        const textarea = document.createElement('textarea');
+        textarea.placeholder = 'Write a reply…';
+        textarea.rows = 2;
+        textarea.required = true;
+
+        const submitBtn = document.createElement('button');
+        submitBtn.type = 'submit';
+        submitBtn.textContent = 'Post Reply';
+
+        const errorEl = document.createElement('p');
+        errorEl.className = 'comment-error';
+
+        form.appendChild(textarea);
+        form.appendChild(submitBtn);
+        form.appendChild(errorEl);
+        afterEl.appendChild(form);
+        textarea.focus();
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const text = textarea.value.trim();
+            if (!text) return;
+
+            submitBtn.disabled = true;
+            errorEl.textContent = '';
+
+            try {
+                const res = await fetch(`/api/postcomment/${encodeURIComponent(storyId)}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ chapter: targetComment.chapter, text, reply_to: targetComment.id })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Could not post reply');
+
+                onPosted();
+            } catch (err) {
+                errorEl.textContent = err.message;
+                submitBtn.disabled = false;
+            }
+        });
     }
 
     function buildCommentForm(chapter, onPosted) {

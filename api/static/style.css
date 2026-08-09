@@ -90,6 +90,39 @@ body {
     .bg-grid {
         animation: none;
     }
+    .avatar-fx-wrap.rank-fx-ring::before,
+    .avatar-fx-wrap.rank-fx-glow::before,
+    .avatar-fx-wrap.rank-fx-pulse::before,
+    .avatar-fx-wrap.rank-fx-spin-ring::before,
+    .avatar-fx-wrap.rank-fx-sparkle::after,
+    .avatar-fx-wrap.rank-fx-aurora::before,
+    .avatar-fx-wrap.rank-fx-aurora::after,
+    .avatar-fx-wrap.rank-fx-radiant::before,
+    .avatar-fx-wrap.rank-fx-radiant::after,
+    .avatar-fx-wrap.rank-fx-heavenly::before,
+    .avatar-fx-wrap.rank-fx-heavenly::after,
+    .fx-carve,
+    .fx-glyph,
+    .fx-spark,
+    .fx-mote,
+    .fx-ray,
+    .fx-ray-field,
+    .fx-halo-core,
+    .orbit-letter {
+        animation: none;
+    }
+    .avatar-fx-wrap.rank-fx-sparkle::after,
+    .fx-spark {
+        opacity: 1;
+        transform: rotate(var(--fx-angle, 0deg)) translateY(var(--fx-radius, 0));
+    }
+    .fx-glyph {
+        opacity: 1;
+        transform: rotate(0deg) translateX(30px) rotate(0deg);
+    }
+    .fx-carve {
+        opacity: 0.75;
+    }
 }
 h1, .site-title {
     font-size: 2.5em;
@@ -212,16 +245,27 @@ h1, .site-title {
 }
 .story-avatar {
     flex-shrink: 0;
-    width: 34px;
-    height: 34px;
+    width: 64px;
+    height: 64px;
     border-radius: 50%;
     background-color: var(--accent);
     color: #fff;
-    font-size: 0.85em;
+    font-size: 1.6em;
     font-weight: 700;
     display: flex;
     align-items: center;
     justify-content: center;
+    position: relative;
+    z-index: 2;
+}
+.story-avatar-img {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    object-fit: cover;
+    background-color: var(--accent);
+    position: relative;
+    z-index: 2;
 }
 .story-block h3 {
     margin: 0 0 2px;
@@ -233,6 +277,9 @@ h1, .site-title {
     margin: 0;
     color: var(--text-muted);
     font-size: 0.82em;
+}
+.story-card-chapters {
+    margin-top: 2px;
 }
 .story-block > p:not(.story-meta) {
     color: var(--text-secondary);
@@ -643,11 +690,13 @@ footer {
 }
 .comment-avatar {
     flex-shrink: 0;
-    width: 36px;
-    height: 36px;
+    width: 64px;
+    height: 64px;
     border-radius: 50%;
     object-fit: cover;
     background-color: var(--toggle-bg);
+    position: relative;
+    z-index: 2;
 }
 .comment-body {
     flex: 1;
@@ -680,6 +729,43 @@ footer {
 .comment-delete:disabled {
     color: var(--border-strong);
     cursor: default;
+}
+.comment-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 6px;
+}
+.comment-reply-btn {
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--text-muted);
+    font-size: 0.78em;
+    text-decoration: underline;
+    cursor: pointer;
+}
+.comment-reply-btn:hover {
+    color: var(--accent);
+}
+.comment-thread {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-left: 34px;
+    padding-left: 14px;
+    border-left: 2px solid var(--border-color);
+}
+.comment-replying-to {
+    margin: 0 0 4px;
+    color: var(--text-muted);
+    font-size: 0.78em;
+    font-style: italic;
+}
+.comment-reply-form {
+    margin-top: 8px;
+}
+.comment-reply-form textarea {
+    min-height: 50px;
 }
 .comment-form {
     display: flex;
@@ -769,8 +855,462 @@ footer {
     text-decoration: underline;
 }
 
+/* Writer rank badge (profile pages) */
+.rank-badge {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 6px;
+}
+.rank-pill {
+    display: inline-block;
+    padding: 4px 14px;
+    border-radius: 999px;
+    font-size: 0.85em;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+    white-space: nowrap;
+}
+.rank-progress-wrap {
+    flex: 1 1 160px;
+    min-width: 140px;
+}
+.rank-progress-track {
+    width: 100%;
+    height: 6px;
+    border-radius: 999px;
+    background-color: var(--toggle-bg);
+    overflow: hidden;
+}
+.rank-progress-fill {
+    height: 100%;
+    border-radius: 999px;
+    transition: width 0.4s ease;
+}
+.rank-progress-label {
+    margin-top: 4px;
+    font-size: 0.78em;
+    color: var(--text-muted);
+}
+
+/* Rank-based avatar special effects. Aspiring Writer and below (rank-fx-none)
+   get no visual treatment; every rank above it is a deliberate step up in
+   density and craft from the one before, so the badge itself communicates
+   progress at a glance. The base layer of each effect is still a pair of
+   pseudo-elements sized around the avatar and placed behind it (z-index 1
+   vs the avatar's z-index 2), so only the portion that pokes out past the
+   avatar's edge is visible. Higher ranks layer additional real DOM
+   particles (rank.js) on top of that base for effects a single ::before/
+   ::after pair can't express - carved facets, orbiting glyphs, drifting
+   motes, radiating rays - all generated with the shared ".rank-fx-gen"
+   marker class so they can be cleanly wiped and re-applied. */
+.avatar-fx-wrap {
+    position: relative;
+    width: 64px;
+    height: 64px;
+    flex-shrink: 0;
+}
+.avatar-fx-wrap.rank-fx-none { /* no effect - intentionally empty */ }
+
+/* Compact contexts (story cards, comments) reuse the exact same 64px
+   effect markup/rules above, just visually scaled and centered down
+   into a smaller layout footprint via .avatar-fx-slot, rather than
+   re-deriving every ring/particle offset at a second size. */
+.avatar-fx-slot {
+    position: relative;
+    flex-shrink: 0;
+}
+.avatar-fx-slot .avatar-fx-wrap {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(var(--fx-slot-scale, 1));
+}
+.avatar-fx-slot--card {
+    width: 34px;
+    height: 34px;
+    --fx-slot-scale: 0.53125; /* 34/64 */
+}
+.avatar-fx-slot--comment {
+    width: 36px;
+    height: 36px;
+    --fx-slot-scale: 0.5625; /* 36/64 */
+}
+
+@keyframes rank-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+@keyframes rank-spin-reverse {
+    from { transform: rotate(360deg); }
+    to { transform: rotate(0deg); }
+}
+
+/* ---- World Builder - a solid ring with a second, fainter course stacked
+   outside it, gently breathing as though still being built up ---------- */
+.avatar-fx-wrap.rank-fx-ring::before {
+    content: "";
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    background: #43a047;
+    z-index: 1;
+    animation: rank-build-pulse 3.2s ease-in-out infinite;
+}
+.avatar-fx-wrap.rank-fx-ring::after {
+    content: "";
+    position: absolute;
+    inset: -8px;
+    border-radius: 50%;
+    border: 1px solid rgba(67, 160, 71, 0.4);
+    z-index: 0;
+}
+@keyframes rank-build-pulse {
+    0%, 100% { transform: scale(0.97); }
+    50% { transform: scale(1.04); }
+}
+
+/* ---- The Storyteller - a breathing ambient glow with a faint outer
+   halo, like a page catching candlelight ------------------------------- */
+.avatar-fx-wrap.rank-fx-glow::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    z-index: 1;
+    animation: rank-story-flicker 3.4s ease-in-out infinite;
+}
+.avatar-fx-wrap.rank-fx-glow::after {
+    content: "";
+    position: absolute;
+    inset: -6px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(30, 136, 229, 0.22) 0%, rgba(30, 136, 229, 0) 72%);
+    z-index: 0;
+}
+@keyframes rank-story-flicker {
+    0%, 100% { box-shadow: 0 0 12px 3px rgba(30, 136, 229, 0.45); }
+    45% { box-shadow: 0 0 16px 5px rgba(30, 136, 229, 0.65); }
+    60% { box-shadow: 0 0 10px 2px rgba(30, 136, 229, 0.4); }
+}
+
+/* ---- Lore Sculptor - a faceted, chiselled ring (clip-path cuts it into
+   hard gem-like facets instead of a smooth circle) plus generated
+   "carve mark" ticks (.fx-carve, added in rank.js) standing around the
+   avatar like tool marks left in stone, each catching a slow glint ----- */
+.avatar-fx-wrap.rank-fx-pulse::before {
+    content: "";
+    position: absolute;
+    inset: -3px;
+    background: linear-gradient(135deg, #7a4fd1, #5e35b1 55%, #3f2385);
+    clip-path: polygon(50% 0%, 85% 15%, 100% 50%, 85% 85%, 50% 100%, 15% 85%, 0% 50%, 15% 15%);
+    z-index: 1;
+    animation: rank-carved-glint 2.6s ease-in-out infinite;
+}
+.avatar-fx-wrap.rank-fx-pulse::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    box-shadow: 0 0 10px 2px rgba(94, 53, 177, 0.5);
+    z-index: 0;
+}
+@keyframes rank-carved-glint {
+    0%, 100% { filter: brightness(0.92); box-shadow: 0 0 8px 2px rgba(94, 53, 177, 0.4); }
+    50% { filter: brightness(1.18); box-shadow: 0 0 18px 5px rgba(94, 53, 177, 0.85); }
+}
+.fx-carve {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 2px;
+    height: 9px;
+    margin: -4.5px -1px;
+    background: linear-gradient(rgba(255, 255, 255, 0.85), rgba(94, 53, 177, 0.1));
+    border-radius: 1px;
+    transform: rotate(var(--fx-angle, 0deg)) translateY(var(--fx-radius, -36px));
+    z-index: 2;
+    animation: rank-carve-glint 2.6s ease-in-out infinite;
+    animation-delay: var(--fx-delay, 0s);
+}
+@keyframes rank-carve-glint {
+    0%, 100% { opacity: 0.35; }
+    50% { opacity: 0.95; }
+}
+
+/* ---- Wordsmith - a dashed ring slowly rotating, with ink-stroke glyphs
+   (.fx-glyph, added in rank.js) orbiting the avatar and fading in and out
+   as though being transcribed onto the air one character at a time ---- */
+.avatar-fx-wrap.rank-fx-spin-ring::before {
+    content: "";
+    position: absolute;
+    inset: -6px;
+    border-radius: 50%;
+    border: 2px dashed #00897b;
+    z-index: 1;
+    animation: rank-spin 6s linear infinite;
+}
+.avatar-fx-wrap.rank-fx-spin-ring::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    box-shadow: 0 0 8px 2px rgba(0, 137, 123, 0.35);
+    z-index: 0;
+}
+.fx-glyph {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 14px;
+    height: 14px;
+    margin: -7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.66em;
+    font-family: Georgia, "Times New Roman", serif;
+    color: #00897b;
+    text-shadow: 0 0 4px rgba(0, 137, 123, 0.8);
+    z-index: 2;
+    animation: rank-transcribe 6.4s linear infinite;
+    animation-delay: var(--fx-delay, 0s);
+}
+@keyframes rank-transcribe {
+    0% { transform: rotate(0deg) translateX(30px) rotate(0deg); opacity: 0; }
+    8% { opacity: 1; }
+    45% { opacity: 1; }
+    58% { opacity: 0; }
+    100% { transform: rotate(360deg) translateX(30px) rotate(-360deg); opacity: 0; }
+}
+
+/* ---- The Specialist - a soft base glow plus a small field of twinkling
+   sparks (.fx-spark, added in rank.js) at varied sizes and rhythms ----- */
+.avatar-fx-wrap.rank-fx-sparkle::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    box-shadow: 0 0 10px 2px rgba(244, 81, 23, 0.35);
+    z-index: 0;
+}
+.avatar-fx-wrap.rank-fx-sparkle::after {
+    content: "";
+    position: absolute;
+    top: -4px;
+    left: 6px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #f4511e;
+    box-shadow: 0 0 6px 2px rgba(244, 81, 23, 0.85);
+    z-index: 3;
+    animation: rank-sparkle 1.8s ease-in-out infinite;
+}
+.fx-spark {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: var(--fx-size, 5px);
+    height: var(--fx-size, 5px);
+    margin: calc(var(--fx-size, 5px) / -2);
+    border-radius: 50%;
+    background: #f4511e;
+    box-shadow: 0 0 6px 2px rgba(244, 81, 23, 0.85);
+    z-index: 3;
+    animation: rank-spark-twinkle 1.8s ease-in-out infinite;
+    animation-delay: var(--fx-delay, 0s);
+}
+@keyframes rank-sparkle {
+    0%, 100% { opacity: 0; transform: scale(0.3); }
+    50% { opacity: 1; transform: scale(1.15); }
+}
+@keyframes rank-spark-twinkle {
+    0%, 100% { opacity: 0; transform: rotate(var(--fx-angle, 0deg)) translateY(var(--fx-radius, -34px)) scale(0.3); }
+    50% { opacity: 1; transform: rotate(var(--fx-angle, 0deg)) translateY(var(--fx-radius, -34px)) scale(1.15); }
+}
+
+/* ---- The Plot Bender - two conic-gradient rings counter-rotating at
+   different speeds for a genuine twisting-aurora look, softened with
+   blur, plus drifting motes (.fx-mote, added in rank.js) ---------------- */
+.avatar-fx-wrap.rank-fx-aurora::before {
+    content: "";
+    position: absolute;
+    inset: -6px;
+    border-radius: 50%;
+    background: conic-gradient(from 0deg, #d81b60, #8e24aa, #3949ab, #d81b60);
+    filter: blur(2px);
+    opacity: 0.9;
+    z-index: 1;
+    animation: rank-spin 5s linear infinite;
+}
+.avatar-fx-wrap.rank-fx-aurora::after {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: 50%;
+    background: conic-gradient(from 180deg, transparent, rgba(255, 255, 255, 0.5), transparent 40%);
+    mix-blend-mode: overlay;
+    z-index: 2;
+    animation: rank-spin-reverse 8s linear infinite;
+}
+.fx-mote {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: var(--fx-size, 4px);
+    height: var(--fx-size, 4px);
+    margin: calc(var(--fx-size, 4px) / -2);
+    border-radius: 50%;
+    z-index: 2;
+    transform: rotate(var(--fx-angle, 0deg)) translateY(var(--fx-radius, -32px));
+    animation: rank-mote-drift 3.6s ease-in-out infinite;
+    animation-delay: var(--fx-delay, 0s);
+}
+.fx-mote--bender {
+    background: #d891ef;
+    box-shadow: 0 0 6px 2px rgba(216, 27, 96, 0.7);
+}
+.fx-mote--radiant {
+    background: #9fb2ff;
+    box-shadow: 0 0 6px 2px rgba(57, 73, 171, 0.7);
+}
+.fx-mote--heavenly {
+    background: #ffe9a8;
+    box-shadow: 0 0 8px 3px rgba(255, 193, 7, 0.85);
+}
+@keyframes rank-mote-drift {
+    0%, 100% { opacity: 0; transform: rotate(var(--fx-angle, 0deg)) translateY(var(--fx-radius, -32px)) scale(0.5); }
+    50% { opacity: 1; transform: rotate(var(--fx-angle, 0deg)) translateY(calc(var(--fx-radius, -32px) - 6px)) scale(1); }
+}
+
+/* ---- Genre-Defining - a wide radiant pulsing aura, an orbiting outer
+   ring, a field of light rays (.fx-ray, added in rank.js), and drifting
+   stardust motes - the last step before the top-rank treatment -------- */
+.avatar-fx-wrap.rank-fx-radiant::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    box-shadow: 0 0 16px 5px rgba(57, 73, 171, 0.75), 0 0 28px 10px rgba(57, 73, 171, 0.35);
+    z-index: 0;
+    animation: rank-pulse-radiant 2.6s ease-in-out infinite;
+}
+.avatar-fx-wrap.rank-fx-radiant::after {
+    content: "";
+    position: absolute;
+    inset: -7px;
+    border-radius: 50%;
+    border: 1px solid rgba(57, 73, 171, 0.6);
+    z-index: 1;
+    animation: rank-spin 10s linear infinite;
+}
+@keyframes rank-pulse-radiant {
+    0%, 100% { opacity: 0.55; transform: scale(0.95); }
+    50% { opacity: 1; transform: scale(1.1); }
+}
+.fx-ray-field {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    animation: rank-spin 22s linear infinite;
+}
+.fx-ray {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 2px;
+    height: var(--fx-length, 26px);
+    margin-left: -1px;
+    transform-origin: top center;
+    transform: rotate(var(--fx-angle, 0deg));
+    animation: rank-ray-shimmer 3s ease-in-out infinite;
+    animation-delay: var(--fx-delay, 0s);
+}
+.fx-ray--radiant {
+    background: linear-gradient(to bottom, rgba(57, 73, 171, 0.85), rgba(57, 73, 171, 0));
+}
+.fx-ray--heavenly {
+    background: linear-gradient(to bottom, rgba(255, 213, 79, 0.95), rgba(111, 141, 255, 0.15), transparent);
+}
+@keyframes rank-ray-shimmer {
+    0%, 100% { opacity: 0.25; }
+    50% { opacity: 0.9; }
+}
+
+/* ---- NCGS Icon - the full top-rank treatment: a deeply blurred,
+   multi-stop heavenly halo breathing behind the avatar, a rotating
+   gold/blue glow ring, a slowly turning field of radiant rays, drifting
+   golden stardust, and "NCGS" orbiting overhead - every layer used by
+   every rank below this one is present here at maximum intensity ------ */
+.avatar-fx-wrap.rank-fx-heavenly::before {
+    content: "";
+    position: absolute;
+    inset: -26px;
+    border-radius: 50%;
+    background:
+        radial-gradient(circle, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0) 30%),
+        radial-gradient(circle, rgba(255, 213, 79, 0.6) 0%, rgba(111, 141, 255, 0.4) 45%, rgba(111, 141, 255, 0) 78%);
+    filter: blur(5px);
+    z-index: 0;
+    animation: rank-heaven-glow 3s ease-in-out infinite;
+}
+.avatar-fx-wrap.rank-fx-heavenly::after {
+    content: "";
+    position: absolute;
+    inset: -9px;
+    border-radius: 50%;
+    background: conic-gradient(from 0deg, #ffd54f, var(--accent), #ffd54f, var(--accent), #ffd54f);
+    box-shadow: 0 0 22px 4px rgba(255, 193, 7, 0.55), 0 0 40px 10px rgba(111, 141, 255, 0.25);
+    z-index: 1;
+    animation: rank-spin 9s linear infinite;
+}
+.fx-halo-core {
+    position: absolute;
+    inset: -14px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 250, 230, 0.7) 0%, rgba(255, 213, 79, 0.3) 55%, rgba(255, 213, 79, 0) 80%);
+    filter: blur(8px);
+    z-index: 0;
+    animation: rank-heaven-glow 3.8s ease-in-out infinite reverse;
+}
+@keyframes rank-heaven-glow {
+    0%, 100% { opacity: 0.65; transform: scale(0.95); }
+    50% { opacity: 1; transform: scale(1.1); }
+}
+.orbit-letter {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 16px;
+    height: 16px;
+    margin: -8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.72em;
+    font-weight: bold;
+    font-family: Arial, sans-serif;
+    color: #ffd54f;
+    text-shadow: 0 0 6px rgba(111, 141, 255, 0.9), 0 0 10px rgba(255, 213, 79, 0.85), 0 0 2px #fff;
+    z-index: 4;
+    animation: rank-orbit 7s linear infinite;
+}
+@keyframes rank-orbit {
+    from { transform: rotate(0deg) translateX(42px) rotate(0deg); }
+    to   { transform: rotate(360deg) translateX(42px) rotate(-360deg); }
+}
+
 /* Mobile */
 @media (max-width: 640px) {
+    .rank-badge {
+        gap: 8px;
+    }
+    .rank-progress-wrap {
+        flex-basis: 100%;
+    }
     body {
         margin: 12px;
     }

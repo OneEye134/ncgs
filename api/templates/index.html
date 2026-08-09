@@ -27,6 +27,7 @@
 {% endblock %}
 
 {% block extra_script %}
+<script src="{{ url_for('static', filename='js/rank.js') }}"></script>
 <script>
     // Show a welcome message after signup or login
     const params = new URLSearchParams(window.location.search);
@@ -69,20 +70,44 @@
                 ? `<a href="/profile/${encodeURIComponent(writer.username)}" class="author-link">${escapeHtml(authorName)}</a>`
                 : escapeHtml(authorName);
             const likes = story.likes || 0;
+            const chapterCount = story.chapter_count || 0;
+            const chaptersHtml = chapterCount > 0
+                ? `Season ${story.season} &middot; Chapter ${chapterCount}`
+                : 'No chapters yet';
 
             const card = document.createElement('div');
             card.className = 'story-block';
             card.innerHTML = `
                 <div class="story-header">
-                    <div class="story-avatar">${escapeHtml(initial)}</div>
                     <div>
                         <h3>${escapeHtml(story.title)}</h3>
                         <p class="story-meta">By ${authorHtml}${date ? ' &middot; ' + date : ''} &middot; <span class="story-card-likes">&hearts; ${likes}</span></p>
+                        <p class="story-meta story-card-chapters">${chaptersHtml}</p>
                     </div>
                 </div>
                 <p>${escapeHtml(story.description || '')}</p>
                 <button class="read-story-btn">Read the Story</button>
             `;
+
+            // Real avatar_url (falling back to an initial) with the
+            // rank-appropriate effect applied around it.
+            const avatarSlot = writer.avatar_url
+                ? buildAvatarFx(writer, { sizeClass: 'avatar-fx-slot--card', imgClass: 'story-avatar-img' })
+                : (() => {
+                    const slot = document.createElement('div');
+                    slot.className = 'avatar-fx-slot avatar-fx-slot--card';
+                    const wrap = document.createElement('div');
+                    wrap.className = 'avatar-fx-wrap';
+                    const fallback = document.createElement('div');
+                    fallback.className = 'story-avatar';
+                    fallback.textContent = initial;
+                    wrap.appendChild(fallback);
+                    slot.appendChild(wrap);
+                    applyAvatarEffect(wrap, (writer.rank_info && writer.rank_info.rank) || 'Newcomer');
+                    return slot;
+                })();
+            card.querySelector('.story-header').prepend(avatarSlot);
+
             card.querySelector('.read-story-btn').addEventListener('click', () => {
                 redirectTo('/story/' + story.id);
             });

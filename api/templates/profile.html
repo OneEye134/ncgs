@@ -8,7 +8,7 @@
     .profile-block { background:var(--card-bg); border:1px solid var(--border-color); border-radius:14px; padding:22px 24px; margin-bottom:24px; box-shadow: 0 2px 10px var(--shadow); }
     .profile-block h3 { margin-top:0; color: var(--heading); }
     .profile-header { display:flex; align-items:center; gap:16px; margin-bottom:8px; }
-    .profile-avatar { width:64px; height:64px; border-radius:50%; object-fit:cover; background-color: var(--accent); }
+    .profile-avatar { width:64px; height:64px; border-radius:50%; object-fit:cover; background-color: var(--accent); position:relative; z-index:2; }
     .profile-identity .profile-username { font-weight:bold; font-size:1.15em; color: var(--heading); }
     .profile-identity .profile-email { color: var(--text-muted); font-size:0.9em; }
     .write-field { margin-bottom:16px; }
@@ -23,6 +23,16 @@
     .status-msg { margin-left:12px; font-size:0.9em; }
     .status-msg.ok { color:#2e7d32; }
     .status-msg.error { color:var(--danger); }
+    .avatar-fx-wrap { position:relative; }
+    .avatar-upload-btn {
+        position:absolute; bottom:-2px; right:-2px; z-index:3;
+        width:22px; height:22px; border-radius:50%; border:2px solid var(--card-bg);
+        background-color: var(--accent); color:#fff; display:flex; align-items:center; justify-content:center;
+        font-size:0.75em; line-height:1; cursor:pointer; padding:0;
+    }
+    .avatar-upload-btn:hover { background-color: var(--accent-hover); }
+    .avatar-upload-btn:disabled { opacity:0.6; cursor:default; }
+    .avatar-status { display:block; font-size:0.8em; margin-top:6px; }
 </style>
 {% endblock %}
 
@@ -30,13 +40,19 @@
 <section class="profile-page">
     <div class="profile-block">
         <div class="profile-header">
-            <img id="profile-avatar" class="profile-avatar" src="" alt="" style="display:none;">
+            <div class="avatar-fx-wrap" id="avatar-fx-wrap">
+                <img id="profile-avatar" class="profile-avatar" src="" alt="" style="display:none;">
+                <button type="button" class="avatar-upload-btn" id="avatar-upload-btn" title="Change photo">&#9998;</button>
+                <input type="file" id="avatar-file-input" accept="image/jpeg,image/png,image/webp" style="display:none;">
+            </div>
             <div class="profile-identity">
                 <div class="profile-username" id="profile-username">&nbsp;</div>
                 <div class="profile-email" id="profile-email"></div>
                 <a href="#" id="view-public-profile-link" style="display:none;">View your public profile &rarr;</a>
+                <span id="avatar-status" class="avatar-status status-msg"></span>
             </div>
         </div>
+        <div id="rank-badge-container"></div>
     </div>
 
     <div class="profile-block">
@@ -69,6 +85,7 @@
 {% endblock %}
 
 {% block extra_script %}
+<script src="{{ url_for('static', filename='js/rank.js') }}"></script>
 <script>
     const usernameEl = document.getElementById('profile-username');
     const emailEl = document.getElementById('profile-email');
@@ -79,6 +96,54 @@
     const bioCountEl = document.getElementById('bio-count');
     const statusEl = document.getElementById('profile-status');
     const mildWarningsToggle = document.getElementById('mild-warnings-toggle');
+    const avatarUploadBtn = document.getElementById('avatar-upload-btn');
+    const avatarFileInput = document.getElementById('avatar-file-input');
+    const avatarStatusEl = document.getElementById('avatar-status');
+
+    const ALLOWED_AVATAR_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+
+    function showAvatarStatus(message, ok) {
+        avatarStatusEl.textContent = message;
+        avatarStatusEl.className = 'avatar-status status-msg ' + (ok ? 'ok' : 'error');
+        if (ok) setTimeout(() => { avatarStatusEl.textContent = ''; }, 2500);
+    }
+
+    avatarUploadBtn.addEventListener('click', () => avatarFileInput.click());
+
+    avatarFileInput.addEventListener('change', async () => {
+        const file = avatarFileInput.files[0];
+        if (!file) return;
+
+        if (!ALLOWED_AVATAR_TYPES.includes(file.type)) {
+            showAvatarStatus('Please choose a JPEG, PNG, or WebP image', false);
+            avatarFileInput.value = '';
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('avatar', file);
+
+        avatarUploadBtn.disabled = true;
+        showAvatarStatus('Uploading...', true);
+
+        try {
+            const res = await fetch('/api/uploadavatar', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Could not upload image');
+
+            avatarEl.src = data.avatar_url;
+            avatarEl.style.display = 'block';
+            showAvatarStatus('Photo updated!', true);
+        } catch (err) {
+            showAvatarStatus(err.message, false);
+        } finally {
+            avatarUploadBtn.disabled = false;
+            avatarFileInput.value = '';
+        }
+    });
 
     const MILD_WARNING_COOKIE = 'hideMildWarnings';
     const MILD_WARNING_COOKIE_MAX_AGE = 60 * 60 * 24 * 365; // 1 year
@@ -134,6 +199,13 @@
             if (profile.avatar_url) {
                 avatarEl.src = profile.avatar_url;
                 avatarEl.style.display = 'block';
+            }
+
+            if (profile.rank_info) {
+                renderRankBadge(document.getElementById('rank-badge-container'), profile.rank_info);
+                if (profile.avatar_url) {
+                    applyAvatarEffect(document.getElementById('avatar-fx-wrap'), profile.rank_info.rank);
+                }
             }
         } catch (err) {
             showStatus('Could not load your profile right now', false);

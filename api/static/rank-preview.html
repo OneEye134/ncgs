@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Rank effect preview</title>
+<link rel="stylesheet" href="style.css">
+<style>
+    body { max-width: 900px; margin: 40px auto; padding: 0 20px; }
+    .preview-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 36px;
+        margin-top: 24px;
+    }
+    .preview-cell {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        width: 110px;
+    }
+    .preview-cell .profile-avatar {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        background-color: var(--accent);
+        position: relative;
+        z-index: 2;
+    }
+    .preview-cell label {
+        font-size: 0.8em;
+        color: var(--text-muted);
+        text-align: center;
+    }
+</style>
+</head>
+<body>
+    <h2>Rank avatar effects</h2>
+    <p style="color:var(--text-muted)">Every rank, rendered live with the real CSS/JS - no server or account needed. Open this file directly, or run the app and visit <code>/static/rank-preview.html</code>.</p>
+
+    <div class="preview-grid" id="grid"></div>
+
+    <script src="js/rank.js"></script>
+    <script>
+        const RANK_ORDER = [
+            "Newcomer",
+            "Aspiring Writer",
+            "World Builder",
+            "The Storyteller",
+            "Lore Sculptor",
+            "Wordsmith",
+            "The Specialist",
+            "The Plot Bender",
+            "Genre-Defining",
+            "NCGS Icon"
+        ];
+
+        const grid = document.getElementById('grid');
+
+        RANK_ORDER.forEach(rank => {
+            const cell = document.createElement('div');
+            cell.className = 'preview-cell';
+            cell.innerHTML = `
+                <div class="avatar-fx-wrap">
+                    <div class="profile-avatar"></div>
+                </div>
+                <label>${rank}</label>
+            `;
+            grid.appendChild(cell);
+
+            const wrap = cell.querySelector('.avatar-fx-wrap');
+            applyAvatarEffect(wrap, rank);
+        });
+    </script>
+</body>
+</html>

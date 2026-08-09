@@ -20,6 +20,12 @@ app.secret_key = os.getenv("FLASK_SECRET_KEY") or "dev-only-insecure-key-set-FLA
 CHAPTER_FILENAME_RE = re.compile(r"^(\d+)chapS(\d+)\.md$")
 HEADING_RE = re.compile(r"^(#{1,6})\s+(.*)$")
 
+# Avatars are uploaded to the "pfp" storage bucket, named after the
+# uploader's user id (a uuid), so each user has at most one avatar file
+# and re-uploading just overwrites it (upsert=true).
+ALLOWED_AVATAR_MIME_TYPES = {"image/jpeg", "image/png", "image/webp"}
+MAX_AVATAR_BYTES = 5 * 1024 * 1024  # 5MB
+
 # Shown to writers as a starting point for a story's custom stylesheet.
 # They're free to replace this entirely with their own CSS.
 DEFAULT_CHAPTER_CSS = """/* Default chapter styling for this story.
@@ -123,6 +129,151 @@ def attach_like_counts(stories):
     return stories
 
 
+def attach_rank_info(items, id_field):
+    """Adds a `rank_info` dict (see rank_for_points) to each item's nested
+    `users` object, so avatars rendered from story/comment feeds can drive
+    the same rank-based effect used on profile pages. `id_field` is the
+    top-level column holding the writer/commenter's user id (e.g. "writer"
+    on stories, "user" on comments). Rank is computed once per unique id
+    and reused across every item that shares it, since compute_writer_points
+    (defined below) re-queries likes/comments received per writer."""
+    cache = {}
+    for item in items:
+        user_id = item.get(id_field)
+        users = item.get("users")
+        if not users or not user_id:
+            continue
+        if user_id not in cache:
+            stats = compute_writer_points(user_id)
+            cache[user_id] = rank_for_points(stats["points"])
+        users["rank_info"] = cache[user_id]
+    return items
+
+
+def attach_chapter_counts(stories):
+    """Adds `season` (the highest season number with a chapter) and
+    `chapter_count` (total chapters across every season) to each story
+    dict, by listing its chapter files in storage - the same source
+    getstory() reads its `seasons` map from. A story with no chapters
+    yet (or an unreadable listing) just gets season=None, chapter_count=0."""
+    for story in stories:
+        story_id = story.get("id")
+        season = None
+        chapter_count = 0
+        if story_id:
+            try:
+                files = supabase.storage.from_("stories").list(story_id)
+            except Exception:
+                files = []
+            for file in files or []:
+                name = file.get("name", "")
+                if not name.endswith(".md") or name == "ignore.md":
+                    continue
+                m = CHAPTER_FILENAME_RE.match(name)
+                if not m:
+                    continue
+                season_num = int(m.group(2))
+                chapter_count += 1
+                if season is None or season_num > season:
+                    season = season_num
+        story["season"] = season
+        story["chapter_count"] = chapter_count
+    return stories
+
+
+
+# Writer rank progression. Points are earned from reader engagement on a
+# writer's own stories: +2 per like, +1 per comment received. Thresholds
+# are intentionally uneven (steep at the top) so the higher ranks stay
+# meaningful as the site grows - listed highest-to-lowest so rank_for_points()
+# can walk down and stop at the first threshold the writer has cleared.
+RANKS = [
+    (800, "NCGS Icon"),
+    (500, "Genre-Defining"),
+    (300, "The Plot Bender"),
+    (150, "The Specialist"),
+    (100, "Wordsmith"),
+    (50, "Lore Sculptor"),
+    (30, "The Storyteller"),
+    (10, "World Builder"),
+    (1, "Aspiring Writer"),
+    (0, "Newcomer"),
+]
+
+POINTS_PER_LIKE = 2
+POINTS_PER_COMMENT = 1
+
+
+def rank_for_points(points):
+    """Returns the writer's current rank plus what's needed to reach the
+    next one, based on RANKS above."""
+    rank_index = len(RANKS) - 1
+    for i, (threshold, _name) in enumerate(RANKS):
+        if points >= threshold:
+            rank_index = i
+            break
+
+    current_threshold, current_name = RANKS[rank_index]
+    next_rank = RANKS[rank_index - 1] if rank_index > 0 else None
+
+    return {
+        "points": points,
+        "rank": current_name,
+        "rank_threshold": current_threshold,
+        "next_rank": next_rank[1] if next_rank else None,
+        "next_rank_threshold": next_rank[0] if next_rank else None,
+        "points_to_next_rank": (next_rank[0] - points) if next_rank else 0,
+    }
+
+
+def compute_writer_points(user_id):
+    """Sums up likes and comments received across every story this user
+    has written, and converts that into a point total. A writer with no
+    stories (or no engagement yet) simply scores 0.
+
+    Two rules keep this from being gamed:
+    - The writer's own likes/comments on their own story never count.
+    - Only a reader's *first* comment on a given story counts - posting
+      ten comments on the same story is worth the same one point as
+      posting one. Likes already can't repeat (likestory toggles a
+      single row per user/story - see like_story), so no dedup is
+      needed there."""
+    stories_result = supabase.table("stories").select("id").eq("writer", user_id).execute()
+    story_ids = [s["id"] for s in (stories_result.data or [])]
+
+    if not story_ids:
+        return {"points": 0, "likes": 0, "comments": 0}
+
+    likes_result = (
+        supabase.table("likes_story")
+        .select("story", count="exact")
+        .in_("story", story_ids)
+        .neq("user", user_id)
+        .execute()
+    )
+    likes_count = likes_result.count or 0
+
+    # Comments (including replies) have no uniqueness constraint, so
+    # fetch the commenter ids and de-duplicate per-story in Python -
+    # a reader who comments 5 times on one story, and once on another,
+    # should only earn the writer 2 points, not 6.
+    comments_result = (
+        supabase.table("comments")
+        .select("user, story")
+        .in_("story", story_ids)
+        .neq("user", user_id)
+        .execute()
+    )
+    unique_commenters_per_story = set()
+    for row in (comments_result.data or []):
+        if row.get("user"):
+            unique_commenters_per_story.add((row["story"], row["user"]))
+    comments_count = len(unique_commenters_per_story)
+
+    points = likes_count * POINTS_PER_LIKE + comments_count * POINTS_PER_COMMENT
+    return {"points": points, "likes": likes_count, "comments": comments_count}
+
+
 def sanitize_search_term(term):
     # Escape Postgres' LIKE wildcards so a search for e.g. "50%" or "a_b"
     # matches those characters literally instead of as wildcards.
@@ -176,9 +327,28 @@ def write_editor(story):
 
 @app.route("/signup", methods=["POST"])
 def signup():
-    username = request.form["username"]
+    username = request.form["username"].strip()
     email = request.form["email"]
     password = request.form["password"]
+
+    if not username:
+        return "Username is required", 400
+
+    # Failsafe: reject a taken username before creating an auth account
+    # at all. Without this, sign_up() below would succeed (auth users
+    # don't know about the `users` table's username column), and only
+    # the insert afterward would fail - leaving a real auth account with
+    # no matching `users` row, which can't log in and can't sign up
+    # again with that email either.
+    existing = (
+        supabase.table("users")
+        .select("id")
+        .eq("username", username)
+        .limit(1)
+        .execute()
+    )
+    if existing.data:
+        return "That username is already taken", 400
 
     # Use a throwaway client for this - signing up on the shared `supabase`
     # client would leave it authenticated as this user for every other
@@ -192,11 +362,26 @@ def signup():
     if auth.user is None:
         return "Failed to create account", 400
 
-    supabase.table("users").insert({
-        "id": auth.user.id,
-        "username": username,
-        "email": email
-    }).execute()
+    try:
+        supabase.table("users").insert({
+            "id": auth.user.id,
+            "username": username,
+            "email": email
+        }).execute()
+    except Exception as e:
+        # Someone else claimed this exact username in the moment between
+        # the availability check above and this insert. The `supabase`
+        # client here only holds an anon/user-level key (see
+        # supabase_client.py), so there's no admin API available to
+        # clean up the now-orphaned auth account - the DB-level unique
+        # constraint is the real backstop, this is just a friendlier
+        # message than a raw 500 for the (rare) case it fires.
+        is_duplicate = "duplicate key" in str(e).lower() or "already exists" in str(e).lower() or (
+            APIError is not None and isinstance(e, APIError)
+        )
+        if is_duplicate:
+            return "That username is already taken", 400
+        raise
 
     # log the user in immediately after signup
     session["user_id"] = auth.user.id
@@ -262,36 +447,76 @@ def login():
     return redirect("/?login=true")
 
 
+STORY_SELECT_WITH_AVATAR = """
+    id,
+    title,
+    description,
+    created_at,
+    edited_at,
+    writer,
+    users:writer (
+        username,
+        nickname,
+        avatar_url
+    )
+"""
+STORY_SELECT_WITHOUT_AVATAR = """
+    id,
+    title,
+    description,
+    created_at,
+    edited_at,
+    writer,
+    users:writer (
+        username,
+        nickname
+    )
+"""
+
+
+def _select_stories_with_avatar_fallback(build_query):
+    """Runs `build_query(select_clause).execute()`, preferring a select
+    that includes the writer's avatar_url. avatar_url may not exist on
+    the users table in every environment (e.g. it hasn't been migrated
+    in yet), so this falls back to a select without it - same pattern as
+    get_comments below - rather than 500'ing the whole endpoint."""
+    try:
+        return build_query(STORY_SELECT_WITH_AVATAR).execute()
+    except Exception as e:
+        missing_avatar_col = "avatar_url" in str(e) and (
+            "does not exist" in str(e) or (APIError is not None and isinstance(e, APIError))
+        )
+        if not missing_avatar_col:
+            raise
+        result = build_query(STORY_SELECT_WITHOUT_AVATAR).execute()
+        for row in result.data or []:
+            if row.get("users") is not None:
+                row["users"].setdefault("avatar_url", None)
+        return result
+
+
 @app.route("/api/getstories")
 def getstories():
     """Returns the story feed. Pass ?sort=likes for most-liked-first,
     or omit it (or ?sort=recent) for newest-first."""
     sort = request.args.get("sort", "recent")
 
-    query = supabase.table("stories").select("""
-        id,
-        title,
-        description,
-        created_at,
-        edited_at,
-        users:writer (
-            username,
-            nickname
-        )
-    """).order("created_at", desc=True)
+    def build_query(select_clause):
+        q = supabase.table("stories").select(select_clause).order("created_at", desc=True)
+        # PostgREST can't order by a related table's aggregate count, so
+        # for "most liked" a larger recent pool is pulled and ranked in
+        # Python instead of just the latest 10.
+        return q.limit(200 if sort == "likes" else 10)
 
-    # PostgREST can't order by a related table's aggregate count, so for
-    # "most liked" a larger recent pool is pulled and ranked in Python
-    # instead of just the latest 10.
-    query = query.limit(200 if sort == "likes" else 10)
-
-    result = query.execute()
+    result = _select_stories_with_avatar_fallback(build_query)
     stories = attach_like_counts(result.data or [])
+    stories = attach_rank_info(stories, "writer")
 
     if sort == "likes":
         stories.sort(key=lambda s: (s["likes"], s["created_at"]), reverse=True)
         stories = stories[:10]
 
+    stories = attach_chapter_counts(stories)
     return jsonify(stories)
 
 
@@ -319,27 +544,21 @@ def search_stories():
             return jsonify({"error": "Search query is required"}), 400
         pattern = f"%{term}%"
 
-    result = (
-        supabase.table("stories")
-        .select("""
-            id,
-            title,
-            description,
-            created_at,
-            edited_at,
-            users:writer (
-                username,
-                nickname
-            )
-        """)
-        .or_(f"title.ilike.{pattern},description.ilike.{pattern}")
-        .order("created_at", desc=True)
-        .limit(50)
-        .execute()
-    )
+    def build_query(select_clause):
+        return (
+            supabase.table("stories")
+            .select(select_clause)
+            .or_(f"title.ilike.{pattern},description.ilike.{pattern}")
+            .order("created_at", desc=True)
+            .limit(50)
+        )
+
+    result = _select_stories_with_avatar_fallback(build_query)
 
     stories = attach_like_counts(result.data or [])
+    stories = attach_rank_info(stories, "writer")
     stories.sort(key=lambda s: (s["likes"], s["created_at"]), reverse=True)
+    stories = attach_chapter_counts(stories)
     return jsonify(stories)
 
 
@@ -476,6 +695,12 @@ def get_profile():
         return jsonify({"error": "Profile not found"}), 404
 
     result.data.setdefault("hide_mild_warnings", False)
+
+    stats = compute_writer_points(session["user_id"])
+    result.data["rank_info"] = rank_for_points(stats["points"])
+    result.data["rank_info"]["likes_received"] = stats["likes"]
+    result.data["rank_info"]["comments_received"] = stats["comments"]
+
     return jsonify(result.data)
 
 
@@ -514,12 +739,18 @@ def get_user_profile(username):
         .execute()
     )
 
+    stats = compute_writer_points(user_row["id"])
+    rank_info = rank_for_points(stats["points"])
+    rank_info["likes_received"] = stats["likes"]
+    rank_info["comments_received"] = stats["comments"]
+
     return jsonify({
         "username": user_row["username"],
         "nickname": user_row.get("nickname"),
         "bio": user_row.get("bio"),
         "avatar_url": user_row.get("avatar_url"),
-        "stories": stories_result.data or []
+        "stories": stories_result.data or [],
+        "rank_info": rank_info
     })
 
 
@@ -551,6 +782,63 @@ def update_profile():
         return jsonify({"error": "Could not update profile"}), 500
 
     return jsonify({"success": True, "nickname": update_payload["nickname"], "bio": bio})
+
+
+@app.route("/api/uploadavatar", methods=["POST"])
+def upload_avatar():
+    if "user_id" not in session:
+        return jsonify({"error": "Must be logged in"}), 401
+
+    file = request.files.get("avatar")
+    if not file or not file.filename:
+        return jsonify({"error": "No image provided"}), 400
+
+    # Trust the sniffed mimetype Flask/Werkzeug derives from the upload,
+    # not just the file extension - matches the allow-list in the prompt.
+    mime_type = (file.mimetype or "").lower()
+    if mime_type not in ALLOWED_AVATAR_MIME_TYPES:
+        return jsonify({"error": "Only JPEG, PNG, and WebP images are allowed"}), 400
+
+    file_bytes = file.read()
+    if not file_bytes:
+        return jsonify({"error": "No image provided"}), 400
+    if len(file_bytes) > MAX_AVATAR_BYTES:
+        return jsonify({"error": "Image must be 5MB or smaller"}), 400
+
+    user_id = session["user_id"]
+
+    try:
+        supabase.storage.from_("pfp").upload(
+            user_id,
+            file_bytes,
+            {"content-type": mime_type, "upsert": "true"}
+        )
+    except Exception as e:
+        return jsonify({"error": f"Could not upload image: {e}"}), 500
+
+    avatar_url = supabase.storage.from_("pfp").get_public_url(user_id)
+    # Cache-bust so browsers (and other users' already-loaded pages) pick
+    # up the new image instead of showing a stale cached one at the same
+    # path.
+    separator = "&" if "?" in avatar_url else "?"
+    avatar_url = f"{avatar_url}{separator}v={int(datetime.now(timezone.utc).timestamp())}"
+
+    try:
+        result = (
+            supabase.table("users")
+            .update({"avatar_url": avatar_url})
+            .eq("id", user_id)
+            .execute()
+        )
+    except Exception as e:
+        return jsonify({"error": f"Uploaded image but could not save profile: {e}"}), 500
+
+    if not result.data:
+        return jsonify({"error": "Uploaded image but could not save profile"}), 500
+
+    session["avatar_url"] = avatar_url
+
+    return jsonify({"success": True, "avatar_url": avatar_url})
 
 
 @app.route("/api/mystories")
@@ -702,7 +990,14 @@ def save_style(story):
 def get_comments(story):
     """Returns comments for a story. Pass ?chapter=N for comments on a
     specific chapter, or omit it for comments on the story as a whole
-    (chapter IS NULL)."""
+    (chapter IS NULL).
+
+    Comments can be replies: `comment` holds the id of the top-level
+    comment a reply's thread belongs to (NULL for top-level comments
+    themselves), and `reply` holds the id of the specific comment/reply
+    being directly replied to (also NULL for top-level comments). The
+    list comes back flat, sorted oldest-first, so callers can either use
+    it as-is or nest it client-side using those two fields."""
     chapter_param = request.args.get("chapter")
 
     # avatar_url may not exist on the users table in every environment
@@ -715,6 +1010,8 @@ def get_comments(story):
         chapter,
         text,
         user,
+        comment,
+        reply,
         users:user (
             username,
             nickname,
@@ -727,6 +1024,8 @@ def get_comments(story):
         chapter,
         text,
         user,
+        comment,
+        reply,
         users:user (
             username,
             nickname
@@ -751,7 +1050,7 @@ def get_comments(story):
 
     try:
         result = build_query(select_with_avatar).order("created_at", desc=False).execute()
-        return jsonify(result.data)
+        return jsonify(attach_rank_info(result.data or [], "user"))
     except Exception as e:
         missing_avatar_col = "avatar_url" in str(e) and (
             "does not exist" in str(e) or (APIError is not None and isinstance(e, APIError))
@@ -764,7 +1063,7 @@ def get_comments(story):
         for row in data:
             if row.get("users") is not None:
                 row["users"].setdefault("avatar_url", None)
-        return jsonify(data)
+        return jsonify(attach_rank_info(data, "user"))
 
 
 @app.route("/api/postcomment/<story>", methods=["POST"])
@@ -780,6 +1079,7 @@ def post_comment(story):
     data = request.get_json(silent=True) or {}
     text = (data.get("text") or "").strip()
     chapter = data.get("chapter")
+    reply_to = data.get("reply_to")
 
     if not text:
         return jsonify({"error": "Comment text is required"}), 400
@@ -792,27 +1092,59 @@ def post_comment(story):
         if chapter < 1:
             return jsonify({"error": "Chapter must be positive"}), 400
 
+    # If this is a reply, look up the comment being replied to and figure
+    # out where it fits: `comment` always points at the root/top-level
+    # comment of the thread, and `reply` points at the specific
+    # comment/reply being directly answered. Replying to a top-level
+    # comment sets both to that comment's id; replying to a reply
+    # inherits the thread's root in `comment` and points `reply` at the
+    # reply itself.
+    thread_comment = None
+    thread_reply = None
+    if reply_to:
+        target_result = (
+            supabase.table("comments")
+            .select("id, story, chapter, comment")
+            .eq("id", reply_to)
+            .execute()
+        )
+        if not target_result.data:
+            return jsonify({"error": "The comment you're replying to no longer exists"}), 404
+
+        target = target_result.data[0]
+        if target["story"] != story or target.get("chapter") != chapter:
+            return jsonify({"error": "Can't reply to a comment from a different discussion"}), 400
+
+        thread_comment = target["comment"] or target["id"]
+        thread_reply = target["id"]
+
     result = supabase.table("comments").insert({
         "user": session["user_id"],
         "story": story,
         "chapter": chapter,
-        "text": text
+        "text": text,
+        "comment": thread_comment,
+        "reply": thread_reply
     }).execute()
 
     if not result.data:
         return jsonify({"error": "Could not post comment"}), 500
 
     row = result.data[0]
+    own_stats = compute_writer_points(session["user_id"])
     return jsonify({
         "id": row["id"],
         "created_at": row["created_at"],
         "chapter": row["chapter"],
         "text": row["text"],
         "user": session["user_id"],
+        "comment": row.get("comment"),
+        "reply": row.get("reply"),
         "users": {
             "username": session.get("username"),
             "nickname": None,
-            "avatar_url": session.get("avatar_url")
+            "avatar_url": session.get("avatar_url"),
+            "rank_info": rank_for_points(own_stats["points"])
         }
     })
 
@@ -829,6 +1161,9 @@ def delete_comment(comment_id):
     if result.data[0]["user"] != session["user_id"]:
         return jsonify({"error": "You don't have permission to delete this comment"}), 403
 
+    # Deleting a top-level comment takes its whole reply thread with it,
+    # rather than leaving orphaned replies with no root to attach to.
+    supabase.table("comments").delete().eq("comment", comment_id).execute()
     supabase.table("comments").delete().eq("id", comment_id).execute()
     return jsonify({"success": True})
 
